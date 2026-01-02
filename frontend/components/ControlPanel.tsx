@@ -42,12 +42,44 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
 
   const chatEndRef = useRef<HTMLDivElement>(null);
 
+  // Load reference images from localStorage on mount
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem('time-traveller-reference-images');
+      if (saved) {
+        const parsed = JSON.parse(saved) as ReferenceImage[];
+        setReferenceImages(parsed);
+      }
+    } catch (error) {
+      console.warn('Failed to load reference images from localStorage:', error);
+    }
+  }, []);
+
+  // Save reference images to localStorage whenever they change
+  useEffect(() => {
+    try {
+      if (referenceImages.length > 0) {
+        localStorage.setItem('time-traveller-reference-images', JSON.stringify(referenceImages));
+      } else {
+        localStorage.removeItem('time-traveller-reference-images');
+      }
+    } catch (error) {
+      console.warn('Failed to save reference images to localStorage:', error);
+    }
+  }, [referenceImages]);
+
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [chatLog]);
 
   const handleSubmit = (e: React.FormEvent | React.MouseEvent) => {
     e.preventDefault();
+    
+    // If in terminal mode and there's unsubmitted input, handle it as a chat submission
+    if (activeTab === 'terminal' && chatInput.trim()) {
+      handleChatSubmit(e as any);
+      return;
+    }
     
     let targetEra = era;
     
@@ -93,7 +125,8 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
       if (result.isJump && result.params) {
         setDestination(result.params.destination);
         setEra(result.params.era);
-        onTeleport(result.params.destination, result.params.era, result.params.style, undefined, undefined, undefined, referenceImages.length > 0 ? referenceImages : undefined);
+        if (result.params.style) setStyle(result.params.style);
+        onTeleport(result.params.destination, result.params.era, result.params.style || style, undefined, undefined, imageConfig, referenceImages.length > 0 ? referenceImages : undefined);
       }
     } catch (e) {
       setChatLog(prev => [...prev, { role: 'ai', text: t('terminal.error') }]);
@@ -108,7 +141,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
   };
 
   const styles = Object.values(LocationStyle);
-  const isSubmitDisabled = isTeleporting || !destination.trim();
+  const isSubmitDisabled = isTeleporting || (activeTab === 'terminal' ? (!chatInput.trim() && !destination.trim()) : !destination.trim());
 
   return (
     <div className="bg-cyber-800 border border-cyber-700 rounded-xl shadow-xl relative overflow-hidden group flex flex-col h-[500px] md:h-[600px]">
