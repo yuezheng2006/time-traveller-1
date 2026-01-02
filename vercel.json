@@ -6,6 +6,30 @@
   "installCommand": "npm install",
   "rewrites": [
     {
+      "source": "/auth",
+      "destination": "https://你的后端地址/auth"
+    },
+    {
+      "source": "/teleport/:path*",
+      "destination": "https://你的后端地址/teleport/:path*"
+    },
+    {
+      "source": "/history",
+      "destination": "https://你的后端地址/history"
+    },
+    {
+      "source": "/user",
+      "destination": "https://你的后端地址/user"
+    },
+    {
+      "source": "/location/:path*",
+      "destination": "https://你的后端地址/location/:path*"
+    },
+    {
+      "source": "/parse-command",
+      "destination": "https://你的后端地址/parse-command"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
