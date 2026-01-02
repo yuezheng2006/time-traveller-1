@@ -281,8 +281,11 @@ export async function generateImage(
   }
   
   const effectiveDestination = locationName || destination;
+  
+  // Use provided imageConfig or defaults
+  const effectiveConfig: ImageConfig = imageConfig || { aspectRatio: '16:9', imageSize: '2K' };
 
-  let promptText = "";
+  let promptText = `IMAGE ASPECT RATIO: ${effectiveConfig.aspectRatio}. `;
   const styleEnhancement = getStylePromptEnhancement(style, effectiveDestination, coordinates);
   const isSpecialStyle = styleEnhancement.length > 0;
   
@@ -439,8 +442,7 @@ export async function generateImage(
 
   const useGoogleSearch = Boolean(coordinates) || !streetViewData;
   
-  // Use provided imageConfig or defaults
-  const effectiveConfig: ImageConfig = imageConfig || { aspectRatio: '16:9', imageSize: '2K' };
+  console.log('[ImageService] Final Image Config:', JSON.stringify(effectiveConfig));
   
   // Gemini 3 Pro (Nano Banana Pro) supports 1K, 2K, 4K
   // Gemini 2.5 Flash (Nano Banana) only supports 1K (1024px)

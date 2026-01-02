@@ -98,7 +98,7 @@ export const handler: Handlers['InitiateTeleport'] = async (req, { emit, logger,
 
     const { destination, era, style, referenceImage, referenceImages, coordinates, imageConfig, userGeminiKey, userMapsKey, language } = bodySchema.parse(req.body);
     
-    const teleportId = `teleport-${userId}-${Date.now()}`;
+    const teleportId = crypto.randomUUID();
     
     logger.info('Initiating teleport sequence', { 
       traceId,
@@ -134,7 +134,8 @@ export const handler: Handlers['InitiateTeleport'] = async (req, { emit, logger,
       style,
       status: 'initiated',
       progress: 10,
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      aspectRatio: imageConfig?.aspectRatio || '16:9'
     });
 
     const teleportData: TeleportData = {

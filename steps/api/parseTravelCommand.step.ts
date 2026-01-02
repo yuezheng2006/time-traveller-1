@@ -24,7 +24,9 @@ export const config: ApiRouteConfig = {
       params: z.object({
         destination: z.string(),
         era: z.string(),
-        style: z.string()
+        style: z.string(),
+        aspectRatio: z.string().optional(),
+        imageSize: z.string().optional()
       }).optional()
     }),
     400: z.object({ error: z.string() })

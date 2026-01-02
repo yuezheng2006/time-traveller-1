@@ -33,6 +33,10 @@ interface TeleportData {
   style: string;
   referenceImageUrl?: string;
   userId: string;
+  imageConfig?: {
+    aspectRatio: string;
+    imageSize: string;
+  };
 }
 
 type CompleteTeleportInput = z.infer<typeof inputSchema>;
@@ -81,7 +85,8 @@ export const handler: Handlers['CompleteTeleport'] = async (input, { logger, str
       mapsUri: detailsState.mapsUri,
       referenceImageUrl: teleportData.referenceImageUrl,
       usedStreetView: imageState.usedStreetView,
-      timestamp: Date.now()
+      timestamp: Date.now(),
+      aspectRatio: teleportData.imageConfig?.aspectRatio
     });
 
     const userId = teleportData.userId;
@@ -98,6 +103,7 @@ export const handler: Handlers['CompleteTeleport'] = async (input, { logger, str
           maps_uri: detailsState.mapsUri,
           reference_image_url: teleportData.referenceImageUrl,
           used_street_view: imageState.usedStreetView,
+          aspect_ratio: teleportData.imageConfig?.aspectRatio,
         });
         logger.info('History stored in Supabase for user', { teleportId, userId });
       } catch (historyError) {

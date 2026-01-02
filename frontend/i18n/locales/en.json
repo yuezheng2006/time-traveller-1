@@ -6,7 +6,10 @@
     "tip": "TIP:",
     "img_error": "IMG ERROR",
     "upload": "Upload",
-    "camera": "Camera"
+    "camera": "Camera",
+    "home": "Home",
+    "back": "Back",
+    "view": "View"
   },
   "header": {
     "title_part1": "TIME",

@@ -1,12 +1,14 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Analytics } from '@vercel/analytics/react';
-import { TeleportState, TravelLogItem, ReferenceImage } from './types';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { TeleportState, TravelLogItem, ReferenceImage, AspectRatio } from './types';
 import * as api from './apiClient';
 import { decodeAudioData, decodeBase64 } from './audioUtils';
 import { ControlPanel } from './components/ControlPanel';
 import { ViewScreen } from './components/ViewScreen';
 import { HistoryLog } from './components/HistoryLog';
+import { HistoryPage } from './components/HistoryPage';
 import { Header } from './components/Header';
 import { Starfield } from './components/Starfield';
 import { AuthBanner } from './components/AuthBanner';
@@ -127,26 +129,53 @@ const AppContent: React.FC = () => {
 
   useEffect(() => {
     const loadHistory = async () => {
+      // Don't load until auth state is determined
       if (authLoading) return;
 
-      // Always load from localStorage first for instant display
-      const localHistory = loadLocalHistory();
-      setHistory(localHistory); // Show local history immediately
+      console.log('[History] Loading history... Auth state:', { 
+        isAuthConfigured, 
+        hasUser: !!user,
+        userId: user?.id 
+      });
 
+      // 1. Always load from localStorage first for instant display
+      const localHistory = loadLocalHistory();
+      console.log('[History] Local cache found:', localHistory.length, 'items');
+      
+      // Initially show local history
+      if (localHistory.length > 0) {
+        setHistory(localHistory);
+      }
+
+      // 2. If authenticated, fetch from server to sync
       if (user && isAuthConfigured) {
         try {
+          console.log('[History] Syncing with cloud...');
           const serverHistory = await api.getHistory();
-          const formattedHistory: TravelLogItem[] = serverHistory.map(item => ({
-            ...item,
-            imageData: item.imageUrl || item.imageData || '', // Handle both URL and base64
-            referenceImage: item.referenceImageUrl || item.referenceImage,
-          }));
-          // Only use server history if it has data, otherwise keep local
-          if (formattedHistory.length > 0) {
+          console.log('[History] Cloud records found:', serverHistory?.length || 0);
+          
+          if (serverHistory && serverHistory.length > 0) {
+            const formattedHistory: TravelLogItem[] = serverHistory.map(item => ({
+              ...item,
+              imageData: item.imageUrl || item.imageData || '',
+              referenceImage: item.referenceImageUrl || item.referenceImage,
+              aspectRatio: item.aspectRatio as AspectRatio
+            }));
+            
+            // For logged in users, server is the source of truth
             setHistory(formattedHistory);
+            console.log('[History] State updated with cloud records');
+          } else {
+            console.log('[History] Cloud storage is empty for this user.');
+            // If server returns empty, but we have local records, we KEEP local records
+            // but log it. This might happen if cloud save failed previously.
+            if (localHistory.length > 0) {
+              console.log('[History] Keeping local records since cloud is empty');
+            }
           }
-        } catch {
-          // Keep local history on error
+        } catch (err) {
+          console.error('[History] Sync failed:', err);
+          // On error, keep using local history
         }
       }
     };
@@ -158,7 +187,8 @@ const AppContent: React.FC = () => {
           const parsed = JSON.parse(savedHistory) as TravelLogItem[];
           return parsed;
         }
-      } catch {
+      } catch (err) {
+        console.warn('[History] Failed to parse local history:', err);
       }
       return [];
     };
@@ -167,16 +197,22 @@ const AppContent: React.FC = () => {
   }, [user, authLoading, isAuthConfigured]);
 
   useEffect(() => {
-    // Always save to localStorage as cache, even for authenticated users
-    // This provides faster loading on refresh and serves as fallback
+    // Save to localStorage as cache
+    // Note: localStorage has ~5MB limit. Base64 images will fill this quickly.
     if (history.length > 0) {
       try {
+        // Optimization: Don't save reference images to local storage to save space
         const historyToSave = history.map(item => ({
           ...item,
-          referenceImage: undefined
+          referenceImage: undefined,
+          referenceImages: undefined
         }));
-        localStorage.setItem('time-traveller-history', JSON.stringify(historyToSave));
-      } catch {
+        
+        const serialized = JSON.stringify(historyToSave);
+        localStorage.setItem('time-traveller-history', serialized);
+      } catch (err) {
+        console.warn('[History] Local storage quota exceeded, could not cache history:', err);
+        // If it fails, we might want to trim the history or only save metadata
       }
     }
   }, [history]);
@@ -288,6 +324,7 @@ const AppContent: React.FC = () => {
               mapsUri: progress.mapsUri,
               referenceImage: progress.referenceImageUrl || referenceImage,
               usedStreetView: progress.usedStreetView,
+              aspectRatio: progress.aspectRatio
             };
 
             setCurrentLocation(newItem);
@@ -409,6 +446,7 @@ const AppContent: React.FC = () => {
             mapsUri: progress.mapsUri,
             referenceImage: progress.referenceImageUrl || referenceImage,
             usedStreetView: progress.usedStreetView,
+            aspectRatio: progress.aspectRatio
           };
 
           setCurrentLocation(newItem);
@@ -557,114 +595,125 @@ const AppContent: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen text-slate-200 flex flex-col font-sans selection:bg-cyber-500 selection:text-white relative overflow-x-hidden">
-      <Starfield weatherCondition={weatherCondition} />
-      
-      {!hasApiKey && (
-        <div className="fixed inset-0 z-[100] bg-cyber-900/95 backdrop-blur-md flex items-center justify-center p-4">
-           <div className="max-w-md w-full bg-cyber-800 border border-cyber-500 rounded-2xl shadow-[0_0_50px_rgba(14,165,233,0.2)] p-8 text-center">
-              <div className="w-16 h-16 bg-cyber-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-cyber-500/50">
-                <Lock className="w-8 h-8 text-cyber-500" />
+    <Routes>
+      <Route path="/history" element={
+        <HistoryPage 
+          history={history} 
+          onSelect={handleSelectFromHistory} 
+        />
+      } />
+      <Route path="/" element={
+        <div className="min-h-screen text-slate-200 flex flex-col font-sans selection:bg-cyber-500 selection:text-white relative overflow-x-hidden">
+          <Starfield weatherCondition={weatherCondition} />
+          
+          {!hasApiKey && (
+              <div className="fixed inset-0 z-[100] bg-cyber-900/95 backdrop-blur-md flex items-center justify-center p-4">
+                 <div className="max-w-md w-full bg-cyber-800 border border-cyber-500 rounded-2xl shadow-[0_0_50px_rgba(14,165,233,0.2)] p-8 text-center">
+                    <div className="w-16 h-16 bg-cyber-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-cyber-500/50">
+                      <Lock className="w-8 h-8 text-cyber-500" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-white mb-2 font-mono uppercase">{t('auth.security_clearance')}</h2>
+                    <p className="text-slate-400 mb-8 leading-relaxed">
+                      {t('auth.security_desc')}
+                    </p>
+                    
+                    <button 
+                      onClick={handleSelectKey}
+                      className="w-full py-4 bg-cyber-500 hover:bg-cyber-400 text-black font-bold tracking-wider rounded-lg transition-all shadow-[0_0_20px_rgba(14,165,233,0.2)] flex items-center justify-center gap-2"
+                    >
+                      <Zap className="w-5 h-5" />
+                      {t('auth.connect_key')}
+                    </button>
+                    
+                    <p className="mt-6 text-xs text-slate-500">
+                      <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" rel="noreferrer" className="hover:text-cyber-400 underline">
+                        {t('auth.view_protocol')}
+                      </a>
+                    </p>
+                 </div>
               </div>
-              <h2 className="text-2xl font-bold text-white mb-2 font-mono uppercase">{t('auth.security_clearance')}</h2>
-              <p className="text-slate-400 mb-8 leading-relaxed">
-                {t('auth.security_desc')}
-              </p>
-              
-              <button 
-                onClick={handleSelectKey}
-                className="w-full py-4 bg-cyber-500 hover:bg-cyber-400 text-black font-bold tracking-wider rounded-lg transition-all shadow-[0_0_20px_rgba(14,165,233,0.2)] flex items-center justify-center gap-2"
-              >
-                <Zap className="w-5 h-5" />
-                {t('auth.connect_key')}
-              </button>
-              
-              <p className="mt-6 text-xs text-slate-500">
-                <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" rel="noreferrer" className="hover:text-cyber-400 underline">
-                  {t('auth.view_protocol')}
-                </a>
-              </p>
-           </div>
-        </div>
-      )}
+            )}
 
-      <Header />
-      
-      <div className="flex-1 flex flex-col xl:flex-row overflow-hidden min-h-0">
-        <ScrollingGallery side="left" />
-        
-        <main className="flex-1 overflow-y-auto px-3 py-4 md:p-6 lg:p-8">
-          <MobileGallery />
-          <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 h-full">
-            <div className="w-full lg:w-1/3 xl:w-2/5 flex flex-col gap-4 lg:gap-6 order-2 lg:order-1 lg:max-h-[calc(100vh-120px)] lg:overflow-hidden">
-              <ControlPanel 
-                onTeleport={handleTeleport} 
-                isTeleporting={teleportState === 'teleporting'} 
-                onWeatherUpdate={setWeatherCondition}
-              />
-              <div id="history-section" className="flex-1 min-h-0 overflow-hidden scroll-mt-20">
-                <HistoryLog 
-                  history={history} 
-                  onSelect={handleSelectFromHistory} 
-                  currentId={currentLocation?.id}
-                />
-              </div>
-            </div>
+            <Header />
+            
+            <div className="flex-1 flex flex-col xl:flex-row overflow-hidden min-h-0">
+              <ScrollingGallery side="left" />
+              
+              <main className="flex-1 overflow-y-auto px-3 py-4 md:p-6 lg:p-8">
+                <MobileGallery />
+                <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 h-full">
+                  <div className="w-full lg:w-1/3 xl:w-2/5 flex flex-col gap-4 lg:gap-6 order-2 lg:order-1 lg:max-h-[calc(100vh-120px)] lg:overflow-hidden">
+                    <ControlPanel 
+                      onTeleport={handleTeleport} 
+                      isTeleporting={teleportState === 'teleporting'} 
+                      onWeatherUpdate={setWeatherCondition}
+                    />
+                    <div id="history-section" className="flex-1 min-h-0 overflow-hidden scroll-mt-20">
+                      <HistoryLog 
+                        history={history} 
+                        onSelect={handleSelectFromHistory} 
+                        currentId={currentLocation?.id}
+                      />
+                    </div>
+                  </div>
 
-            <div className="w-full lg:w-2/3 xl:w-3/5 flex flex-col order-1 lg:order-2 mb-4 lg:mb-0">
-              {error && (
-                <div className="mb-4 p-4 bg-red-900/20 border border-red-500/50 rounded-lg flex items-center gap-3 text-red-200 animate-pulse">
-                  <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                  <p>{error}</p>
+                  <div className="w-full lg:w-2/3 xl:w-3/5 flex flex-col order-1 lg:order-2 mb-4 lg:mb-0">
+                    {error && (
+                      <div className="mb-4 p-4 bg-red-900/20 border border-red-500/50 rounded-lg flex items-center gap-3 text-red-200 animate-pulse">
+                        <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                        <p>{error}</p>
+                      </div>
+                    )}
+                    
+                    <ViewScreen 
+                      state={teleportState} 
+                      location={currentLocation}
+                      onPlayAudio={handlePlayAudio}
+                      onStopAudio={handleStopAudio}
+                      isAudioPlaying={isAudioPlaying}
+                      progress={teleportProgress}
+                      progressStatus={progressStatus}
+                    />
+                  </div>
                 </div>
-              )}
+              </main>
               
-              <ViewScreen 
-                state={teleportState} 
-                location={currentLocation}
-                onPlayAudio={handlePlayAudio}
-                onStopAudio={handleStopAudio}
-                isAudioPlaying={isAudioPlaying}
-                progress={teleportProgress}
-                progressStatus={progressStatus}
-              />
+              <ScrollingGallery side="right" />
             </div>
-          </div>
-        </main>
-        
-        <ScrollingGallery side="right" />
-      </div>
-      
-      <footer className="p-4 text-center text-xs text-slate-600 font-mono z-10 relative">
-        <div className="flex items-center justify-center gap-4 flex-wrap">
-          <button 
-            onClick={() => setShowApiKeyModal(true)}
-            className={`hover:text-cyber-400 transition-colors flex items-center gap-1.5 ${hasUserKeys ? 'text-green-500' : remainingFreeGenerations === 0 ? 'text-red-400 animate-pulse' : remainingFreeGenerations <= 2 ? 'text-amber-400' : ''}`}
-          >
-            <Key className="w-3 h-3" />
-            {hasUserKeys ? t('settings.using_your_keys') : remainingFreeGenerations === 0 ? t('settings.add_api_key') : t('settings.free_left', { count: remainingFreeGenerations })}
-          </button>
-          <span className="text-slate-700">|</span>
-          <button 
-            onClick={() => setShowTerms(true)}
-            className="hover:text-cyber-400 transition-colors flex items-center gap-1.5"
-          >
-            <Shield className="w-3 h-3" />
-            {t('common.terms_privacy')}
-          </button>
-        </div>
-      </footer>
+            
+            <footer className="p-4 text-center text-xs text-slate-600 font-mono z-10 relative">
+              <div className="flex items-center justify-center gap-4 flex-wrap">
+                <button 
+                  onClick={() => setShowApiKeyModal(true)}
+                  className={`hover:text-cyber-400 transition-colors flex items-center gap-1.5 ${hasUserKeys ? 'text-green-500' : remainingFreeGenerations === 0 ? 'text-red-400 animate-pulse' : remainingFreeGenerations <= 2 ? 'text-amber-400' : ''}`}
+                >
+                  <Key className="w-3 h-3" />
+                  {hasUserKeys ? t('settings.using_your_keys') : remainingFreeGenerations === 0 ? t('settings.add_api_key') : t('settings.free_left', { count: remainingFreeGenerations })}
+                </button>
+                <span className="text-slate-700">|</span>
+                <button 
+                  onClick={() => setShowTerms(true)}
+                  className="hover:text-cyber-400 transition-colors flex items-center gap-1.5"
+                >
+                  <Shield className="w-3 h-3" />
+                  {t('common.terms_privacy')}
+                </button>
+              </div>
+            </footer>
 
-      {showTour && <GuidedTour onComplete={handleTourComplete} />}
-      <TermsModal isOpen={showTerms} onClose={() => setShowTerms(false)} />
-      <ApiKeyModal 
-        isOpen={showApiKeyModal} 
-        onClose={() => setShowApiKeyModal(false)}
-        onSaveKeys={handleSaveApiKeys}
-        generationsUsed={generationsUsed}
-        maxFreeGenerations={MAX_FREE_GENERATIONS}
-      />
-    </div>
+            {showTour && <GuidedTour onComplete={handleTourComplete} />}
+            <TermsModal isOpen={showTerms} onClose={() => setShowTerms(false)} />
+            <ApiKeyModal 
+              isOpen={showApiKeyModal} 
+              onClose={() => setShowApiKeyModal(false)}
+              onSaveKeys={handleSaveApiKeys}
+              generationsUsed={generationsUsed}
+              maxFreeGenerations={MAX_FREE_GENERATIONS}
+            />
+          </div>
+        } />
+        <Route path="*" element={<Navigate to="/" replace />} />
+      </Routes>
   );
 };
 

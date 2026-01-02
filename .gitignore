@@ -34,3 +34,7 @@ dist-ssr
 .env.local
 .env.production
 .vercel
+.env*.local
+
+# Claude
+.claude/

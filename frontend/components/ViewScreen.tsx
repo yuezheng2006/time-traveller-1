@@ -264,9 +264,22 @@ export const ViewScreen: React.FC<ViewScreenProps> = ({ state, location, onPlayA
   }
 
   if (state === 'arrived' && location) {
+    const aspectRatioClass = {
+      '1:1': 'aspect-square',
+      '16:9': 'aspect-video',
+      '9:16': 'aspect-[9/16]',
+      '4:3': 'aspect-[4/3]',
+      '3:4': 'aspect-[3/4]',
+      '3:2': 'aspect-[3/2]',
+      '2:3': 'aspect-[2/3]',
+      '21:9': 'aspect-[21/9]',
+      '4:5': 'aspect-[4/5]',
+      '5:4': 'aspect-[5/4]',
+    }[location.aspectRatio || '16:9'] || 'aspect-video';
+
     return (
       <div className="flex flex-col gap-6 animate-[fadeIn_0.8s_ease-out]">
-        <div className="relative rounded-xl overflow-hidden border border-cyber-600 shadow-[0_0_40px_rgba(0,0,0,0.6)] group bg-black aspect-video ring-1 ring-cyber-500/50">
+        <div className={`relative rounded-xl overflow-hidden border border-cyber-600 shadow-[0_0_40px_rgba(0,0,0,0.6)] group bg-black ${aspectRatioClass} ring-1 ring-cyber-500/50`}>
           <img 
             src={getImageSrc(location.imageData)} 
             alt={`${location.destination} in ${location.era}`}

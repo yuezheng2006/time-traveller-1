@@ -28,6 +28,7 @@ export interface HistoryItem {
   reference_image_url?: string;
   used_street_view?: boolean;
   created_at?: string;
+  aspect_ratio?: string;
 }
 
 export interface HistoryItemResponse {
@@ -41,6 +42,7 @@ export interface HistoryItemResponse {
   referenceImageUrl?: string;
   usedStreetView?: boolean;
   timestamp: number;
+  aspectRatio?: string;
 }
 
 export async function saveHistory(item: HistoryItem): Promise<void> {
@@ -59,6 +61,7 @@ export async function saveHistory(item: HistoryItem): Promise<void> {
       maps_uri: item.maps_uri,
       reference_image_url: item.reference_image_url,
       used_street_view: item.used_street_view,
+      aspect_ratio: item.aspect_ratio,
     });
   
   if (error) {
@@ -91,6 +94,7 @@ export async function getHistory(userId: string, limit: number = 100): Promise<H
     referenceImageUrl: item.reference_image_url,
     usedStreetView: item.used_street_view,
     timestamp: item.created_at ? new Date(item.created_at).getTime() : Date.now(),
+    aspectRatio: item.aspect_ratio,
   }));
 }
 

@@ -61,6 +61,7 @@ export interface TravelLogItem {
   referenceImage?: string;
   referenceImages?: ReferenceImage[];
   usedStreetView?: boolean;
+  aspectRatio?: AspectRatio;
 }
 
 export function getImageSrc(imageData: string | undefined): string {

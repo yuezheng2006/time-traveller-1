@@ -1,14 +1,29 @@
 import React from 'react';
-import { Zap, Map, Cpu, Server, Languages } from 'lucide-react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { Zap, Languages, History, Home } from 'lucide-react';
 import { AuthButton } from './AuthButton';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '../contexts/AuthContext';
 
 export const Header: React.FC = () => {
   const { t, i18n } = useTranslation();
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const isHistoryPage = location.pathname === '/history';
 
   const toggleLanguage = () => {
     const newLang = i18n.language.startsWith('en') ? 'zh' : 'en';
     i18n.changeLanguage(newLang);
+  };
+
+  const navigateToHistory = () => {
+    navigate('/history');
+  };
+
+  const navigateToHome = () => {
+    navigate('/');
   };
 
   return (
@@ -16,7 +31,7 @@ export const Header: React.FC = () => {
       <div className="container mx-auto px-3 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4 flex items-center justify-between gap-2 sm:gap-4">
         
         {/* Logo and Title - Responsive */}
-        <div className="flex items-center gap-2 sm:gap-3 md:gap-4 group cursor-pointer select-none min-w-0 flex-shrink-0">
+        <div className="flex items-center gap-2 sm:gap-3 md:gap-4 group cursor-pointer select-none min-w-0 flex-shrink-0" onClick={navigateToHome}>
           {/* Icon - smaller on mobile */}
           <div className="relative flex-shrink-0">
              <div className="absolute inset-0 bg-cyber-500/30 blur-lg rounded-full animate-pulse-fast"></div>
@@ -45,60 +60,38 @@ export const Header: React.FC = () => {
         
         {/* Right side controls */}
         <div className="flex items-center gap-2 sm:gap-3 md:gap-4 lg:gap-6 flex-shrink-0">
-            {/* Tech Stack Indicators - Only on extra large screens (1280px+) */}
-            <div className="hidden 2xl:flex items-center gap-4">
-               <div className="flex flex-col items-end gap-1">
-                 <div className="text-[10px] text-slate-500 font-mono uppercase tracking-widest">{t('header.system_integrity')}</div>
-                 <div className="flex gap-1">
-                    <div className="w-16 h-1 bg-cyber-500/20 rounded-full overflow-hidden">
-                      <div className="h-full bg-cyber-500 animate-scan"></div>
+            {/* Navigation Buttons */}
+            {user && (
+              <>
+                {isHistoryPage ? (
+                  <button
+                    onClick={navigateToHome}
+                    className="flex items-center gap-1.5 md:gap-2 text-cyber-500 hover:text-cyber-400 transition-all hover:scale-105 group/home"
+                    title={t('common.home')}
+                  >
+                    <div className="p-1.5 md:p-2 bg-cyber-900/50 rounded-md md:rounded-lg border border-cyber-500/50 group-hover/home:border-cyber-400 group-hover/home:bg-cyber-800 transition-all">
+                      <Home className="w-4 h-4 md:w-5 md:h-5" />
                     </div>
-                    <div className="w-2 h-1 bg-green-500 rounded-full animate-pulse"></div>
-                 </div>
-               </div>
-               
-               <div className="h-8 w-[1px] bg-cyber-700/50 mx-2"></div>
-    
-               <a
-                 href="https://ai.google.dev/gemini-api/docs/image-generation"
-                 target="_blank"
-                 rel="noopener noreferrer"
-                 className="hover:underline"
-               >
-                 <TechBadge
-                   icon={<Cpu className="w-3 h-3" />}
-                   label={t('tech_stack.gemini')}
-                   color="text-purple-400"
-                   glow="shadow-[0_0_10px_rgba(192,132,252,0.3)]"
-                 />
-               </a>
-               <a
-                 href="https://developers.google.com/maps/documentation#maps-documentation"
-                 target="_blank"
-                 rel="noopener noreferrer"
-                 className="hover:underline"
-               >
-                 <TechBadge
-                   icon={<Map className="w-3 h-3" />}
-                   label={t('tech_stack.street_view')}
-                   color="text-yellow-400"
-                   glow="shadow-[0_0_10px_rgba(250,204,21,0.3)]"
-                 />
-               </a>
-               <a
-                 href="https://www.motia.dev"
-                 target="_blank"
-                 rel="noopener noreferrer"
-                 className="hover:underline"
-               >
-                <TechBadge
-                  icon={<Server className="w-3 h-3" />}
-                  label={t('tech_stack.motia')}
-                  color="text-cyber-500"
-                  glow="shadow-[0_0_10px_rgba(0,102,255,0.4)]"
-                />
-               </a>
-            </div>
+                    <span className="hidden lg:inline text-[10px] sm:text-xs font-mono font-bold tracking-wider">
+                      {t('common.home')}
+                    </span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={navigateToHistory}
+                    className="flex items-center gap-1.5 md:gap-2 text-slate-400 hover:text-cyber-400 transition-all hover:scale-105 group/history"
+                    title={t('history.archives')}
+                  >
+                    <div className="p-1.5 md:p-2 bg-cyber-900/50 rounded-md md:rounded-lg border border-cyber-700 group-hover/history:border-cyber-500/50 group-hover/history:bg-cyber-800 transition-all">
+                      <History className="w-4 h-4 md:w-5 md:h-5" />
+                    </div>
+                    <span className="hidden lg:inline text-[10px] sm:text-xs font-mono font-bold tracking-wider">
+                      {t('history.archives')}
+                    </span>
+                  </button>
+                )}
+              </>
+            )}
 
             {/* Language Switcher */}
             <button
@@ -122,9 +115,3 @@ export const Header: React.FC = () => {
   );
 };
 
-const TechBadge: React.FC<{icon: React.ReactNode, label: string, color: string, glow: string}> = ({ icon, label, color, glow }) => (
-  <div className={`flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 border border-white/5 backdrop-blur-sm font-mono text-[10px] tracking-wider hover:bg-white/5 transition-all cursor-help group ${glow}`}>
-    <span className={`${color} group-hover:scale-110 transition-transform`}>{icon}</span>
-    <span className="text-slate-400 font-bold group-hover:text-white transition-colors">{label}</span>
-  </div>
-);

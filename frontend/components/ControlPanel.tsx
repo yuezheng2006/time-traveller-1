@@ -126,7 +126,29 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
         setDestination(result.params.destination);
         setEra(result.params.era);
         if (result.params.style) setStyle(result.params.style);
-        onTeleport(result.params.destination, result.params.era, result.params.style || style, undefined, undefined, imageConfig, referenceImages.length > 0 ? referenceImages : undefined);
+        
+        // Update image config if provided in terminal command
+        let effectiveImageConfig = { ...imageConfig };
+        if (result.params.aspectRatio) {
+          effectiveImageConfig.aspectRatio = result.params.aspectRatio as AspectRatio;
+        }
+        if (result.params.imageSize) {
+          effectiveImageConfig.imageSize = result.params.imageSize as ImageSize;
+        }
+        
+        if (result.params.aspectRatio || result.params.imageSize) {
+          setImageConfig(effectiveImageConfig);
+        }
+
+        onTeleport(
+          result.params.destination, 
+          result.params.era, 
+          result.params.style || style, 
+          undefined, 
+          undefined, 
+          effectiveImageConfig, 
+          referenceImages.length > 0 ? referenceImages : undefined
+        );
       }
     } catch (e) {
       setChatLog(prev => [...prev, { role: 'ai', text: t('terminal.error') }]);
@@ -229,12 +251,12 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
                 <p className="text-[9px] text-slate-600 font-mono">{t('styles.hover_details')}</p>
               </div>
 
-              {/* Image Configuration */}
-              <div className="space-y-2">
+              {/* Image Configuration (Moved inside Manual tab) */}
+              <div className="mt-6 mb-4 space-y-2 shrink-0">
                 <button
                   type="button"
                   onClick={() => setShowImageSettings(!showImageSettings)}
-                  className="w-full flex items-center justify-between text-xs text-cyber-400 font-mono uppercase tracking-wider hover:text-cyber-300 transition-colors"
+                  className="w-full flex items-center justify-between text-xs text-cyber-400 font-mono uppercase tracking-wider hover:text-cyber-300 transition-colors bg-cyber-900/30 p-2 rounded border border-cyber-700/50"
                 >
                   <span className="flex items-center gap-2">
                     <Settings2 className="w-3 h-3" /> {t('settings.image_settings')}
@@ -261,7 +283,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
                             className={`px-2 py-1.5 rounded text-[8px] font-mono transition-all border ${
                               imageConfig.aspectRatio === option.value
                                 ? 'bg-cyber-500/20 border-cyber-500 text-white'
-                                : 'bg-cyber-900 border-cyber-800 text-slate-500 hover:border-cyber-600'
+                                : 'bg-cyber-900 border border-cyber-800 text-slate-500 hover:border-cyber-600'
                             }`}
                             title={option.description}
                           >
@@ -271,7 +293,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
                       </div>
                     </div>
 
-                    {/* Image Size */}
+                    {/* Image Size (Added to Manual tab) */}
                     <div className="space-y-1.5">
                       <label className="text-[9px] text-slate-500 font-mono uppercase flex items-center gap-1">
                         <Image className="w-2.5 h-2.5" /> {t('settings.resolution')}
@@ -286,7 +308,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
                             className={`px-2 py-2 rounded text-[9px] font-mono transition-all border flex flex-col items-center ${
                               imageConfig.imageSize === option.value
                                 ? 'bg-cyber-500/20 border-cyber-500 text-white'
-                                : 'bg-cyber-900 border-cyber-800 text-slate-500 hover:border-cyber-600'
+                                : 'bg-cyber-900 border border-cyber-800 text-slate-500 hover:border-cyber-600'
                             }`}
                             title={option.description}
                           >
@@ -295,16 +317,10 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
                           </button>
                         ))}
                       </div>
-                      <p className="text-[8px] text-slate-600 font-mono">
-                        {imageConfig.imageSize === '4K' ? t('settings.4k_warning') : 
-                         imageConfig.imageSize === '1K' ? t('settings.1k_fast') : 
-                         t('settings.balanced')}
-                      </p>
                     </div>
                   </div>
                 )}
               </div>
-
             </div>
           )}
 

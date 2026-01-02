@@ -6,7 +6,10 @@
     "tip": "提示：",
     "img_error": "图像错误",
     "upload": "上传",
-    "camera": "相机"
+    "camera": "相机",
+    "home": "首页",
+    "back": "返回",
+    "view": "查看"
   },
   "header": {
     "title_part1": "时空",
@@ -149,7 +152,12 @@
   "history": {
     "empty": "时空数据库为空",
     "archives": "时空档案",
-    "records": "条记录"
+    "archives_title": "时空历程档案库",
+    "records": "条记录",
+    "search_placeholder": "搜索目的地、纪元或描述...",
+    "accessing_logs": "正在访问加密的时空日志...",
+    "no_records_found": "未找到匹配的时空记录",
+    "load_error": "无法加载时空档案"
   },
   "styles": {
     "labels": {

@@ -110,6 +110,7 @@ export interface TeleportProgress {
   usedStreetView?: boolean;
   error?: string;
   timestamp: number;
+  aspectRatio?: '1:1' | '2:3' | '3:2' | '3:4' | '4:3' | '4:5' | '5:4' | '9:16' | '16:9' | '21:9';
 }
 
 export interface HistoryItem {
@@ -125,7 +126,9 @@ export interface HistoryItem {
   referenceImage?: string;
   usedStreetView?: boolean;
   timestamp: number;
+  aspectRatio?: '1:1' | '2:3' | '3:2' | '3:4' | '4:3' | '4:5' | '5:4' | '9:16' | '16:9' | '21:9';
 }
+
 
 export interface AudioResponse {
   audioData?: string;
@@ -241,7 +244,13 @@ export async function parseTravelCommand(
 ): Promise<{
   isJump: boolean;
   reply: string;
-  params?: { destination: string; era: string; style: string };
+  params?: { 
+    destination: string; 
+    era: string; 
+    style: string;
+    aspectRatio?: string;
+    imageSize?: string;
+  };
 }> {
   const response = await fetch(`${API_BASE_URL}/parse-command`, {
     method: 'POST',
