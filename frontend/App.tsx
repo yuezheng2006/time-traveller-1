@@ -128,7 +128,10 @@ const AppContent: React.FC = () => {
   useEffect(() => {
     const loadHistory = async () => {
       if (authLoading) return;
-      
+
+      // Always try to load from localStorage first as fallback
+      const localHistory = loadLocalHistory();
+
       if (user && isAuthConfigured) {
         try {
           const serverHistory = await api.getHistory();
@@ -139,30 +142,34 @@ const AppContent: React.FC = () => {
           }));
           setHistory(formattedHistory);
         } catch {
-          loadLocalHistory();
+          // Fallback to local history if server fails
+          if (localHistory.length > 0) {
+            setHistory(localHistory);
+          }
         }
       } else {
-        loadLocalHistory();
+        setHistory(localHistory);
       }
     };
 
-    const loadLocalHistory = () => {
+    const loadLocalHistory = (): TravelLogItem[] => {
       try {
         const savedHistory = localStorage.getItem('time-traveller-history');
         if (savedHistory) {
           const parsed = JSON.parse(savedHistory) as TravelLogItem[];
-          setHistory(parsed);
+          return parsed;
         }
       } catch {
       }
+      return [];
     };
 
     loadHistory();
   }, [user, authLoading, isAuthConfigured]);
 
   useEffect(() => {
-    if (user && isAuthConfigured) return;
-    
+    // Always save to localStorage as cache, even for authenticated users
+    // This provides faster loading on refresh and serves as fallback
     if (history.length > 0) {
       try {
         const historyToSave = history.map(item => ({
@@ -173,7 +180,7 @@ const AppContent: React.FC = () => {
       } catch {
       }
     }
-  }, [history, user, isAuthConfigured]);
+  }, [history]);
 
   const handleSelectKey = async () => {
     if (window.aistudio) {
@@ -596,7 +603,7 @@ const AppContent: React.FC = () => {
                 isTeleporting={teleportState === 'teleporting'} 
                 onWeatherUpdate={setWeatherCondition}
               />
-              <div className="flex-1 min-h-0 overflow-hidden">
+              <div id="history-section" className="flex-1 min-h-0 overflow-hidden scroll-mt-20">
                 <HistoryLog 
                   history={history} 
                   onSelect={handleSelectFromHistory} 
