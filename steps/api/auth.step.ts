@@ -11,6 +11,7 @@ const userSchema = z.object({
   email: z.string(),
   name: z.string(),
   avatarUrl: z.string().optional(),
+  isWhitelisted: z.boolean().optional(),
 });
 
 export const config: ApiRouteConfig = {
@@ -60,7 +61,11 @@ export const handler: Handlers['Auth'] = async (req, { logger, state }) => {
 
     const accessToken = createAccessToken(user.id, user.email, user.name);
 
-    logger.info('Auth: Token exchange successful', { userId: user.id });
+    // Check if user is whitelisted
+    const whitelistedEmails = process.env.WHITELISTED_EMAILS?.split(',').map(e => e.trim()) || [];
+    const isWhitelisted = whitelistedEmails.includes(user.email);
+
+    logger.info('Auth: Token exchange successful', { userId: user.id, isWhitelisted });
 
     return {
       status: 200,
@@ -71,6 +76,7 @@ export const handler: Handlers['Auth'] = async (req, { logger, state }) => {
           email: user.email,
           name: user.name,
           avatarUrl: user.avatarUrl,
+          isWhitelisted
         }
       },
     };

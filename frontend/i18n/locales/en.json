@@ -200,7 +200,8 @@
     "balanced": "✨ Recommended for quality/speed balance",
     "using_your_keys": "USING YOUR API KEYS",
     "add_api_key": "⚠️ ADD API KEY",
-    "free_left": "{{count}} FREE LEFT"
+    "free_left": "{{count}} FREE LEFT",
+    "whitelisted_access": "Whitelisted Access Enabled"
   },
   "terminal": {
     "nav_system_online": "Time Traveller NavSystem v9.2 online. Awaiting command.",

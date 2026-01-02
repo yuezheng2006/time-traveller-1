@@ -19,12 +19,12 @@
         "y": 54
       },
       "steps/api/parseTravelCommand.step.ts": {
-        "x": 10,
-        "y": 0
+        "x": -194,
+        "y": -7
       },
       "steps/api/initiateTeleport.step.ts": {
-        "x": 0,
-        "y": 203
+        "x": -171,
+        "y": 204
       },
       "steps/api/getUser.step.ts": {
         "x": 45,

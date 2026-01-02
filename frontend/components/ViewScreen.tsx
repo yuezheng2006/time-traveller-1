@@ -266,7 +266,7 @@ export const ViewScreen: React.FC<ViewScreenProps> = ({ state, location, onPlayA
   if (state === 'arrived' && location) {
     return (
       <div className="flex flex-col gap-6 animate-[fadeIn_0.8s_ease-out] items-center">
-        <div className="relative rounded-xl overflow-hidden border border-cyber-600 shadow-[0_0_40px_rgba(0,0,0,0.6)] group bg-black aspect-video ring-1 ring-cyber-500/50 flex items-center justify-center w-full max-h-[500px] md:max-h-[600px] lg:max-h-[700px]">
+        <div className="relative rounded-xl overflow-hidden border border-cyber-600 shadow-[0_0_40px_rgba(0,0,0,0.6)] group bg-black aspect-video ring-1 ring-cyber-500/50 flex items-center justify-center w-full max-h-[450px] md:max-h-[500px] lg:max-h-[550px]">
           {/* Blurred background for portrait images */}
           <div 
             className="absolute inset-0 z-0 opacity-40 blur-2xl scale-110"

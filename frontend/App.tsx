@@ -82,8 +82,9 @@ const AppContent: React.FC = () => {
   }, [authLoading, user, isAuthConfigured]);
 
   const hasUserKeys = userGeminiKey.length > 0;
+  const isWhitelisted = user?.isWhitelisted === true;
   const remainingFreeGenerations = Math.max(0, MAX_FREE_GENERATIONS - generationsUsed);
-  const canGenerate = hasUserKeys || remainingFreeGenerations > 0;
+  const canGenerate = hasUserKeys || isWhitelisted || remainingFreeGenerations > 0;
 
   const handleSaveApiKeys = (geminiKey: string, mapsKey: string) => {
     const oldMapsKey = localStorage.getItem(STORAGE_KEY_USER_MAPS);
@@ -102,7 +103,7 @@ const AppContent: React.FC = () => {
   };
 
   const incrementGenerationCount = () => {
-    if (!hasUserKeys) {
+    if (!hasUserKeys && !isWhitelisted) {
       const newCount = generationsUsed + 1;
       setGenerationsUsed(newCount);
       localStorage.setItem(STORAGE_KEY_GENERATIONS, newCount.toString());
@@ -685,10 +686,16 @@ const AppContent: React.FC = () => {
               <div className="flex items-center justify-center gap-4 flex-wrap">
                 <button 
                   onClick={() => setShowApiKeyModal(true)}
-                  className={`hover:text-cyber-400 transition-colors flex items-center gap-1.5 ${hasUserKeys ? 'text-green-500' : remainingFreeGenerations === 0 ? 'text-red-400 animate-pulse' : remainingFreeGenerations <= 2 ? 'text-amber-400' : ''}`}
+                  className={`hover:text-cyber-400 transition-colors flex items-center gap-1.5 ${hasUserKeys || isWhitelisted ? 'text-green-500' : remainingFreeGenerations === 0 ? 'text-red-400 animate-pulse' : remainingFreeGenerations <= 2 ? 'text-amber-400' : ''}`}
                 >
                   <Key className="w-3 h-3" />
-                  {hasUserKeys ? t('settings.using_your_keys') : remainingFreeGenerations === 0 ? t('settings.add_api_key') : t('settings.free_left', { count: remainingFreeGenerations })}
+                  {hasUserKeys 
+                    ? t('settings.using_your_keys') 
+                    : isWhitelisted 
+                      ? t('settings.whitelisted_access') 
+                      : remainingFreeGenerations === 0 
+                        ? t('settings.add_api_key') 
+                        : t('settings.free_left', { count: remainingFreeGenerations })}
                 </button>
                 <span className="text-slate-700">|</span>
                 <button 
@@ -709,6 +716,7 @@ const AppContent: React.FC = () => {
               onSaveKeys={handleSaveApiKeys}
               generationsUsed={generationsUsed}
               maxFreeGenerations={MAX_FREE_GENERATIONS}
+              isWhitelisted={isWhitelisted}
             />
           </div>
         } />

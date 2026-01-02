@@ -113,13 +113,24 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({ history, onSelect }) =
                   key={item.id}
                   className="group bg-cyber-900/40 border border-cyber-800 rounded-2xl overflow-hidden hover:border-cyber-500/50 transition-all duration-500 hover:shadow-[0_0_40px_rgba(14,165,233,0.1)] flex flex-col"
                 >
-                  <div className={`relative ${aspectRatioClass} overflow-hidden`}>
+                  <div className={`relative ${aspectRatioClass} overflow-hidden flex items-center justify-center bg-black max-h-[300px]`}>
                     {item.imageData ? (
-                      <img 
-                        src={getImageSrc(item.imageData)} 
-                        alt={item.destination}
-                        className="w-full h-full object-cover grayscale-[0.5] group-hover:grayscale-0 group-hover:scale-110 transition-all duration-700"
-                      />
+                      <>
+                        {/* Blurred background for different aspect ratios */}
+                        <div 
+                          className="absolute inset-0 z-0 opacity-30 blur-xl scale-110"
+                          style={{ 
+                            backgroundImage: `url(${getImageSrc(item.imageData)})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center'
+                          }}
+                        />
+                        <img 
+                          src={getImageSrc(item.imageData)} 
+                          alt={item.destination}
+                          className="relative z-10 w-full h-full object-contain grayscale-[0.3] group-hover:grayscale-0 group-hover:scale-105 transition-all duration-700"
+                        />
+                      </>
                     ) : (
                       <div className="w-full h-full bg-cyber-950 flex items-center justify-center">
                         <Clock className="w-12 h-12 text-cyber-900" />

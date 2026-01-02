@@ -24,6 +24,7 @@ export interface AppUser {
   email: string;
   name: string;
   avatarUrl?: string;
+  isWhitelisted?: boolean;
 }
 
 interface AuthContextType {

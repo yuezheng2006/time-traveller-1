@@ -8,6 +8,7 @@ interface ApiKeyModalProps {
   onSaveKeys: (geminiKey: string, mapsKey: string) => void;
   generationsUsed: number;
   maxFreeGenerations: number;
+  isWhitelisted?: boolean;
 }
 
 export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({ 
@@ -15,7 +16,8 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
   onClose, 
   onSaveKeys,
   generationsUsed,
-  maxFreeGenerations 
+  maxFreeGenerations,
+  isWhitelisted = false
 }) => {
   const { t } = useTranslation();
   const [geminiKey, setGeminiKey] = useState('');
@@ -33,19 +35,17 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
   };
 
   const remainingGenerations = Math.max(0, maxFreeGenerations - generationsUsed);
-  const hasReachedLimit = remainingGenerations === 0;
+  const hasReachedLimit = !isWhitelisted && remainingGenerations === 0;
 
   return (
     <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
       <div className="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto bg-cyber-900 border border-cyber-500/50 rounded-2xl shadow-[0_0_60px_rgba(0,102,255,0.3)]">
-        {!hasReachedLimit && (
-          <button
-            onClick={onClose}
-            className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white transition-colors z-10"
-          >
-            <X className="w-5 h-5" />
-          </button>
-        )}
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 p-2 text-slate-400 hover:text-white transition-colors z-10"
+        >
+          <X className="w-5 h-5" />
+        </button>
 
         <div className="p-6 md:p-8">
           {hasReachedLimit ? (
@@ -65,7 +65,9 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
               </div>
               <h2 className="text-2xl font-bold text-white mb-2 font-mono">{t('api_key_modal.use_own_keys')}</h2>
               <p className="text-slate-400">
-                {t('api_key_modal.remaining_generations', { remaining: remainingGenerations })}
+                {isWhitelisted 
+                  ? t('settings.whitelisted_access') 
+                  : t('api_key_modal.remaining_generations', { remaining: remainingGenerations })}
               </p>
             </div>
           )}
@@ -165,18 +167,16 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
 
             {/* Action Buttons */}
             <div className="flex gap-3">
-              {!hasReachedLimit && (
-                <button
-                  onClick={onClose}
-                  className="flex-1 py-3 px-4 border border-cyber-700 text-slate-300 rounded-lg hover:bg-cyber-800 transition-colors font-mono uppercase"
-                >
-                  {t('api_key_modal.maybe_later')}
-                </button>
-              )}
+              <button
+                onClick={onClose}
+                className="flex-1 py-3 px-4 border border-cyber-700 text-slate-300 rounded-lg hover:bg-cyber-800 transition-colors font-mono uppercase"
+              >
+                {t('api_key_modal.maybe_later')}
+              </button>
               <button
                 onClick={handleSave}
                 disabled={!geminiKey.trim()}
-                className={`${hasReachedLimit ? 'w-full' : 'flex-1'} py-3 px-4 bg-cyber-500 hover:bg-cyber-400 disabled:bg-cyber-500/30 disabled:cursor-not-allowed text-black font-bold rounded-lg transition-colors font-mono flex items-center justify-center gap-2 uppercase`}
+                className="flex-1 py-3 px-4 bg-cyber-500 hover:bg-cyber-400 disabled:bg-cyber-500/30 disabled:cursor-not-allowed text-black font-bold rounded-lg transition-colors font-mono flex items-center justify-center gap-2 uppercase"
               >
                 <Check className="w-4 h-4" />
                 {hasReachedLimit ? t('api_key_modal.add_key_to_continue') : t('api_key_modal.save_unlock')}

@@ -7,6 +7,7 @@ const userSchema = z.object({
   email: z.string(),
   name: z.string(),
   avatarUrl: z.string().optional(),
+  isWhitelisted: z.boolean().optional(),
 });
 
 export const config: ApiRouteConfig = {
@@ -62,9 +63,18 @@ export const handler: Handlers['GetUser'] = async (req, { logger, state }) => {
       };
     }
 
+    // Check if user is whitelisted
+    const whitelistedEmails = process.env.WHITELISTED_EMAILS?.split(',').map(e => e.trim()) || [];
+    const isWhitelisted = whitelistedEmails.includes(user.email);
+
     return {
       status: 200,
-      body: { user },
+      body: { 
+        user: {
+          ...user,
+          isWhitelisted
+        } 
+      },
     };
   } catch (error: any) {
     logger.error('GetUser: Error fetching user', { error: error.message });
