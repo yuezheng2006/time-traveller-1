@@ -6,28 +6,8 @@ import { MapSelector } from './MapSelector';
 import { LocationInfo } from './LocationInfo';
 import { MultiImageUpload } from './MultiImageUpload';
 import * as api from '../apiClient';
-
-const getStyleDescription = (style: string): string => {
-  const descriptions: Record<string, string> = {
-    [LocationStyle.REALISTIC]: 'High-fidelity photorealistic rendering',
-    [LocationStyle.CYBERPUNK]: 'Neon-lit futuristic sci-fi aesthetic',
-    [LocationStyle.VINTAGE]: 'Classic film grain and warm tones',
-    [LocationStyle.PAINTING]: 'Artistic oil painting style',
-    [LocationStyle.SURREAL]: 'Dreamlike surrealist imagery',
-    [LocationStyle.DISPOSABLE]: 'Low-quality disposable camera look with imperfections',
-    [LocationStyle.PHOTOBOOK]: 'Beautiful photo book layout with elegant typography',
-    [LocationStyle.AERIAL]: 'Drone/aerial view looking down from the sky',
-    [LocationStyle.CINEMATIC_GRID]: '9-shot cinematic contact sheet with multiple angles',
-    [LocationStyle.PHOTO_GRID_3X3]: '3×3 grid with same pose, 9 different camera angles',
-    [LocationStyle.CCTV]: 'CCTV surveillance camera style with noise',
-    [LocationStyle.WEATHER_REALTIME]: 'Matches real-time local weather and time of day',
-    [LocationStyle.LIGHT_LEAK]: 'Retro failed photo with light leaks and blur',
-    [LocationStyle.HYPER_CANDID]: 'Ultra-realistic candid street photography, 8K raw style',
-    [LocationStyle.PHOTO_RESTORATION]: 'Restore & enhance old/damaged photos to 16K quality',
-    [LocationStyle.PIXAR_3D]: 'Pixar-style 3D cartoon portrait with expressive characters',
-  };
-  return descriptions[style] || style;
-};
+import { useTranslation } from 'react-i18next';
+import { getStyleLabel, getStyleDescription } from '../i18n/styleUtils';
 
 interface ControlPanelProps {
   onTeleport: (dest: string, era: string, style: string, referenceImage?: string, coordinates?: { lat: number, lng: number }, imageConfig?: ImageConfig, referenceImages?: ReferenceImage[]) => void;
@@ -38,6 +18,7 @@ interface ControlPanelProps {
 type Tab = 'manual' | 'terminal' | 'map';
 
 export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTeleporting, onWeatherUpdate }) => {
+  const { t, i18n } = useTranslation();
   const [activeTab, setActiveTab] = useState<Tab>('manual');
   
   const [destination, setDestination] = useState('');
@@ -46,9 +27,14 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [selectedCoords, setSelectedCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [chatInput, setChatInput] = useState('');
-  const [chatLog, setChatLog] = useState<{role: 'user' | 'ai', text: string}[]>([
-    { role: 'ai', text: 'Time Traveller NavSystem v9.2 online. Awaiting command.' }
-  ]);
+  const [chatLog, setChatLog] = useState<{role: 'user' | 'ai', text: string}[]>([]);
+
+  useEffect(() => {
+    setChatLog([
+      { role: 'ai', text: t('terminal.nav_system_online') }
+    ]);
+  }, [t]);
+
   const [isProcessingChat, setIsProcessingChat] = useState(false);
   const [imageConfig, setImageConfig] = useState<ImageConfig>(DEFAULT_IMAGE_CONFIG);
   const [showImageSettings, setShowImageSettings] = useState(true);
@@ -66,8 +52,8 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
     let targetEra = era;
     
     if (!targetEra.trim()) {
-       targetEra = "Present Day";
-       setEra("Present Day");
+       targetEra = t('control_panel.placeholder_era');
+       setEra(t('control_panel.placeholder_era'));
     }
 
     if (destination && targetEra && !isTeleporting) {
@@ -100,7 +86,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
 
     try {
       const history = chatLog.map(c => c.text);
-      const result = await api.parseTravelCommand(userMsg, history);
+      const result = await api.parseTravelCommand(userMsg, history, i18n.language);
       
       setChatLog(prev => [...prev, { role: 'ai', text: result.reply }]);
 
@@ -110,7 +96,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
         onTeleport(result.params.destination, result.params.era, result.params.style, undefined, undefined, undefined, referenceImages.length > 0 ? referenceImages : undefined);
       }
     } catch (e) {
-      setChatLog(prev => [...prev, { role: 'ai', text: 'Error processing navigational data.' }]);
+      setChatLog(prev => [...prev, { role: 'ai', text: t('terminal.error') }]);
     } finally {
       setIsProcessingChat(false);
     }
@@ -133,19 +119,19 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
           onClick={() => setActiveTab('manual')}
           className={`flex-1 py-3 text-xs font-mono font-bold tracking-wider flex items-center justify-center gap-2 transition-all ${activeTab === 'manual' ? 'bg-cyber-800 text-cyber-400 border-b-2 border-cyber-500' : 'text-slate-500 hover:text-slate-300'}`}
         >
-          <Sliders className="w-4 h-4" /> MANUAL
+          <Sliders className="w-4 h-4" /> {t('control_panel.manual')}
         </button>
         <button 
           onClick={() => setActiveTab('terminal')}
           className={`flex-1 py-3 text-xs font-mono font-bold tracking-wider flex items-center justify-center gap-2 transition-all ${activeTab === 'terminal' ? 'bg-cyber-800 text-cyber-400 border-b-2 border-cyber-500' : 'text-slate-500 hover:text-slate-300'}`}
         >
-          <Terminal className="w-4 h-4" /> TERMINAL
+          <Terminal className="w-4 h-4" /> {t('control_panel.terminal')}
         </button>
         <button 
           onClick={() => setActiveTab('map')}
           className={`flex-1 py-3 text-xs font-mono font-bold tracking-wider flex items-center justify-center gap-2 transition-all ${activeTab === 'map' ? 'bg-cyber-800 text-cyber-400 border-b-2 border-cyber-500' : 'text-slate-500 hover:text-slate-300'}`}
         >
-          <Globe className="w-4 h-4" /> ORBITAL
+          <Globe className="w-4 h-4" /> {t('control_panel.orbital')}
         </button>
       </div>
 
@@ -155,13 +141,13 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
             <div className="space-y-6">
               <div className="space-y-2">
                 <label className="text-xs text-cyber-400 font-mono uppercase tracking-wider flex items-center gap-2">
-                  <MapPin className="w-3 h-3" /> Target Coordinates
+                  <MapPin className="w-3 h-3" /> {t('control_panel.target_coords')}
                 </label>
                 <input
                   type="text"
                   value={destination}
                   onChange={(e) => setDestination(e.target.value)}
-                  placeholder="e.g. Kyoto, Mars Colony, Times Square"
+                  placeholder={t('control_panel.placeholder_destination')}
                   className="w-full bg-cyber-900 border border-cyber-700 rounded-lg px-4 py-3 text-white placeholder-slate-600 focus:border-cyber-500 focus:ring-1 focus:ring-cyber-500 outline-none transition-all font-mono"
                   required
                   disabled={isTeleporting}
@@ -170,13 +156,13 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
 
               <div className="space-y-2">
                 <label className="text-xs text-cyber-400 font-mono uppercase tracking-wider flex items-center gap-2">
-                  <Clock className="w-3 h-3" /> Temporal Epoch
+                  <Clock className="w-3 h-3" /> {t('control_panel.temporal_epoch')}
                 </label>
                 <input
                   type="text"
                   value={era}
                   onChange={(e) => setEra(e.target.value)}
-                  placeholder="e.g. 2050, 1920s, Present Day"
+                  placeholder={t('control_panel.placeholder_era')}
                   className="w-full bg-cyber-900 border border-cyber-700 rounded-lg px-4 py-3 text-white placeholder-slate-600 focus:border-cyber-500 focus:ring-1 focus:ring-cyber-500 outline-none transition-all font-mono"
                   required
                   disabled={isTeleporting}
@@ -185,7 +171,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
 
               <div className="space-y-2">
                 <label className="text-xs text-cyber-400 font-mono uppercase tracking-wider flex items-center gap-2">
-                  <Palette className="w-3 h-3" /> Visual Renderer
+                  <Palette className="w-3 h-3" /> {t('control_panel.visual_renderer')}
                 </label>
                 <div className="max-h-[180px] overflow-y-auto scrollbar-thin scrollbar-thumb-cyber-700 scrollbar-track-transparent pr-1">
                   <div className="grid grid-cols-2 gap-2">
@@ -200,14 +186,14 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
                             ? 'bg-cyber-500/20 border-cyber-500 text-white shadow-[0_0_10px_rgba(14,165,233,0.2)]'
                             : 'bg-cyber-900 border-cyber-700 text-slate-400 hover:border-slate-500'
                         }`}
-                        title={getStyleDescription(s)}
+                        title={getStyleDescription(s, t)}
                       >
-                        {s}
+                        {getStyleLabel(s, t)}
                       </button>
                     ))}
                   </div>
                 </div>
-                <p className="text-[9px] text-slate-600 font-mono">Hover for style details</p>
+                <p className="text-[9px] text-slate-600 font-mono">{t('styles.hover_details')}</p>
               </div>
 
               {/* Image Configuration */}
@@ -218,7 +204,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
                   className="w-full flex items-center justify-between text-xs text-cyber-400 font-mono uppercase tracking-wider hover:text-cyber-300 transition-colors"
                 >
                   <span className="flex items-center gap-2">
-                    <Settings2 className="w-3 h-3" /> Image Settings
+                    <Settings2 className="w-3 h-3" /> {t('settings.image_settings')}
                   </span>
                   <span className="text-[9px] text-slate-500">
                     {imageConfig.aspectRatio} • {imageConfig.imageSize}
@@ -230,7 +216,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
                     {/* Aspect Ratio */}
                     <div className="space-y-1.5">
                       <label className="text-[9px] text-slate-500 font-mono uppercase flex items-center gap-1">
-                        <Maximize2 className="w-2.5 h-2.5" /> Aspect Ratio
+                        <Maximize2 className="w-2.5 h-2.5" /> {t('settings.aspect_ratio')}
                       </label>
                       <div className="grid grid-cols-5 gap-1">
                         {ASPECT_RATIO_OPTIONS.map((option) => (
@@ -255,7 +241,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
                     {/* Image Size */}
                     <div className="space-y-1.5">
                       <label className="text-[9px] text-slate-500 font-mono uppercase flex items-center gap-1">
-                        <Image className="w-2.5 h-2.5" /> Resolution
+                        <Image className="w-2.5 h-2.5" /> {t('settings.resolution')}
                       </label>
                       <div className="grid grid-cols-3 gap-1">
                         {IMAGE_SIZE_OPTIONS.map((option) => (
@@ -277,9 +263,9 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
                         ))}
                       </div>
                       <p className="text-[8px] text-slate-600 font-mono">
-                        {imageConfig.imageSize === '4K' ? '⚠️ 4K may take longer to generate' : 
-                         imageConfig.imageSize === '1K' ? '⚡ Fast generation' : 
-                         '✨ Recommended for quality/speed balance'}
+                        {imageConfig.imageSize === '4K' ? t('settings.4k_warning') : 
+                         imageConfig.imageSize === '1K' ? t('settings.1k_fast') : 
+                         t('settings.balanced')}
                       </p>
                     </div>
                   </div>
@@ -306,7 +292,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
                    ))}
                    {isProcessingChat && (
                      <div className="text-left text-cyber-500 animate-pulse">
-                       &gt; Analyzing request<span className="animate-pulse">_</span>
+                       &gt; {t('terminal.analyzing_request')}<span className="animate-pulse">_</span>
                      </div>
                    )}
                    <div ref={chatEndRef} />
@@ -317,7 +303,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
                      type="text" 
                      value={chatInput}
                      onChange={(e) => setChatInput(e.target.value)}
-                     placeholder="Enter jump command (e.g. 'Take me to Paris, 1920')"
+                     placeholder={t('terminal.placeholder')}
                      className="w-full bg-cyber-900 border border-cyber-700 rounded-lg pl-4 pr-12 py-3 text-white font-mono focus:border-cyber-500 outline-none"
                      disabled={isProcessingChat || isTeleporting}
                    />
@@ -346,7 +332,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
                
                <div className="mt-3 flex flex-col gap-2 shrink-0">
                   <p className="text-[10px] text-slate-500 font-mono flex items-center gap-1">
-                    <span className="text-cyber-500">⚠ WARNING:</span> Orbital targeting system active.
+                    <span className="text-cyber-500">{t('map.warning')}</span> {t('map.orbital_targeting')}
                   </p>
                   
                   <div className="flex gap-2 items-stretch">
@@ -356,7 +342,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
                           type="text" 
                           value={era} 
                           onChange={(e) => setEra(e.target.value)}
-                          placeholder="Era (e.g. Present Day)" 
+                          placeholder={t('map.era_placeholder')} 
                           className="w-full h-full bg-cyber-900 border border-cyber-700 rounded pl-8 pr-2 text-xs text-white placeholder-slate-600 focus:border-cyber-500 outline-none"
                         />
                      </div>
@@ -391,11 +377,11 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
               {isTeleporting ? (
                 <>
                   <LoaderIcon />
-                  INITIATING JUMP...
+                  {t('control_panel.initiating_jump')}
                 </>
               ) : (
                 <>
-                  <Send className="w-5 h-5" /> {activeTab === 'map' && selectedCoords ? 'JUMP TO COORDS' : 'ENGAGE TELEPORT'}
+                  <Send className="w-5 h-5" /> {activeTab === 'map' && selectedCoords ? t('control_panel.jump_to_coords') : t('control_panel.engage_teleport')}
                 </>
               )}
             </span>

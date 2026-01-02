@@ -1,7 +1,7 @@
 import { Modality } from "@google/genai";
 import { getAI } from './imageService';
 
-export async function synthesizeSpeech(text: string): Promise<string> {
+export async function synthesizeSpeech(text: string, language: string = 'en'): Promise<string> {
   const ai = getAI();
   
   try {
@@ -12,7 +12,9 @@ export async function synthesizeSpeech(text: string): Promise<string> {
         responseModalities: [Modality.AUDIO],
         speechConfig: {
           voiceConfig: {
-            prebuiltVoiceConfig: { voiceName: 'Fenrir' }, 
+            prebuiltVoiceConfig: { 
+              voiceName: language === 'zh' ? 'Aoife' : 'Fenrir' // Assuming Aoife might be better for multi-lang or just Fenrir
+            }, 
           },
         },
       },

@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { User, Upload, Camera, X, Circle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface TravelerIdentityProps {
   userImage: string | null;
@@ -8,6 +9,7 @@ interface TravelerIdentityProps {
 }
 
 export const TravelerIdentity: React.FC<TravelerIdentityProps> = ({ userImage, onImageChange, isTeleporting }) => {
+  const { t } = useTranslation();
   // Open by default if no image is selected
   const [isOpen, setIsOpen] = useState(!userImage);
   const [isCameraActive, setIsCameraActive] = useState(false);
@@ -65,7 +67,7 @@ export const TravelerIdentity: React.FC<TravelerIdentityProps> = ({ userImage, o
       streamRef.current = stream;
       setIsCameraActive(true);
     } catch {
-      alert("Could not access camera. Please check permissions.");
+      alert(t('traveler_identity.camera_error'));
     }
   };
 
@@ -122,7 +124,7 @@ export const TravelerIdentity: React.FC<TravelerIdentityProps> = ({ userImage, o
             ? 'border-cyber-500 shadow-[0_0_10px_rgba(14,165,233,0.5)]' 
             : 'border-cyber-700 bg-cyber-900 hover:border-cyber-500'
         }`}
-        title="Traveler Identity"
+        title={t('traveler_identity.title')}
       >
         {userImage ? (
           <img src={userImage} alt="User" className="w-full h-full object-cover" />
@@ -139,7 +141,7 @@ export const TravelerIdentity: React.FC<TravelerIdentityProps> = ({ userImage, o
       {isOpen && (
         <div className="absolute bottom-full left-0 mb-2 w-64 bg-cyber-900 border border-cyber-600 rounded-lg shadow-xl p-3 z-50 animate-[slideIn_0.2s_ease-out]">
           <div className="flex justify-between items-center mb-2 pb-2 border-b border-cyber-800">
-            <span className="text-xs font-mono font-bold text-cyber-400 uppercase">Identify Verification</span>
+            <span className="text-xs font-mono font-bold text-cyber-400 uppercase">{t('traveler_identity.verification')}</span>
             <button onClick={() => setIsOpen(false)} className="text-slate-500 hover:text-white">
               <X className="w-4 h-4" />
             </button>
@@ -185,14 +187,14 @@ export const TravelerIdentity: React.FC<TravelerIdentityProps> = ({ userImage, o
                   disabled={isTeleporting}
                   className="py-2 px-3 bg-cyber-800 hover:bg-cyber-700 border border-cyber-600 rounded flex items-center justify-center gap-2 text-xs text-slate-300"
                 >
-                  <Upload className="w-3 h-3" /> Upload
+                  <Upload className="w-3 h-3" /> {t('traveler_identity.upload')}
                 </button>
                 <button
                   onClick={startCamera}
                   disabled={isTeleporting}
                   className="py-2 px-3 bg-cyber-800 hover:bg-cyber-700 border border-cyber-600 rounded flex items-center justify-center gap-2 text-xs text-slate-300"
                 >
-                  <Camera className="w-3 h-3" /> Camera
+                  <Camera className="w-3 h-3" /> {t('traveler_identity.camera')}
                 </button>
               </div>
             </div>

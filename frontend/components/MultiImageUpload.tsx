@@ -1,5 +1,6 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { User, Upload, Camera, X, Plus, Users, Star, Package, Circle } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import { ReferenceImage, MAX_REFERENCE_IMAGES, MAX_PERSON_IMAGES } from '../types';
 
 interface MultiImageUploadProps {
@@ -13,6 +14,7 @@ export const MultiImageUpload: React.FC<MultiImageUploadProps> = ({
   onImagesChange, 
   isTeleporting 
 }) => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [isCameraActive, setIsCameraActive] = useState(false);
   const [activeImageType, setActiveImageType] = useState<'person' | 'celebrity' | 'object'>('person');
@@ -72,7 +74,7 @@ export const MultiImageUpload: React.FC<MultiImageUploadProps> = ({
             id: `img-${Date.now()}-${i}`,
             data: compressed,
             type: activeImageType,
-            label: activeImageType === 'celebrity' ? 'Celebrity' : activeImageType === 'person' ? 'You' : 'Object'
+            label: activeImageType === 'celebrity' ? t('traveler_identity.role_celebrity') : activeImageType === 'person' ? t('traveler_identity.role_you') : t('traveler_identity.role_object')
           });
           resolve();
         };
@@ -94,7 +96,7 @@ export const MultiImageUpload: React.FC<MultiImageUploadProps> = ({
       streamRef.current = stream;
       setIsCameraActive(true);
     } catch {
-      alert("Could not access camera. Please check permissions.");
+      alert(t('traveler_identity.camera_error'));
     }
   };
 
@@ -128,7 +130,7 @@ export const MultiImageUpload: React.FC<MultiImageUploadProps> = ({
           id: `img-${Date.now()}`,
           data: dataUrl,
           type: activeImageType,
-          label: activeImageType === 'celebrity' ? 'Celebrity' : activeImageType === 'person' ? 'You' : 'Object'
+          label: activeImageType === 'celebrity' ? t('traveler_identity.role_celebrity') : activeImageType === 'person' ? t('traveler_identity.role_you') : t('traveler_identity.role_object')
         }]);
         stopCamera();
       }
@@ -171,7 +173,7 @@ export const MultiImageUpload: React.FC<MultiImageUploadProps> = ({
             ? 'border-cyber-500 bg-cyber-500/10 shadow-[0_0_10px_rgba(14,165,233,0.3)]' 
             : 'border-cyber-700 bg-cyber-900 hover:border-cyber-500'
         }`}
-        title="Add Reference Images"
+        title={t('traveler_identity.add_photos')}
       >
         {images.length > 0 ? (
           <>
@@ -196,7 +198,7 @@ export const MultiImageUpload: React.FC<MultiImageUploadProps> = ({
         ) : (
           <>
             <Users className="w-4 h-4 text-cyber-500" />
-            <span className="text-[10px] text-slate-400 font-mono hidden sm:inline">ADD PHOTOS</span>
+            <span className="text-[10px] text-slate-400 font-mono hidden sm:inline">{t('traveler_identity.add_photos')}</span>
           </>
         )}
       </button>
@@ -206,8 +208,8 @@ export const MultiImageUpload: React.FC<MultiImageUploadProps> = ({
         <div className="absolute bottom-full left-0 mb-2 w-80 bg-cyber-900 border border-cyber-600 rounded-lg shadow-xl p-3 z-50 animate-[slideIn_0.2s_ease-out]">
           <div className="flex justify-between items-center mb-3 pb-2 border-b border-cyber-800">
             <div>
-              <span className="text-xs font-mono font-bold text-cyber-400 uppercase block">Multi-Image Upload</span>
-              <span className="text-[9px] text-slate-500">Up to 14 images • 5 people + 6 objects</span>
+              <span className="text-xs font-mono font-bold text-cyber-400 uppercase block">{t('traveler_identity.multi_upload')}</span>
+              <span className="text-[9px] text-slate-500">{t('traveler_identity.upload_limit')}</span>
             </div>
             <button onClick={() => setIsOpen(false)} className="text-slate-500 hover:text-white">
               <X className="w-4 h-4" />
@@ -229,7 +231,7 @@ export const MultiImageUpload: React.FC<MultiImageUploadProps> = ({
                 }`}
               >
                 {getTypeIcon(type)}
-                {type === 'person' ? 'You' : type === 'celebrity' ? 'Celeb' : 'Object'}
+                {type === 'person' ? t('traveler_identity.role_you') : type === 'celebrity' ? t('traveler_identity.role_celeb_short') : t('traveler_identity.role_object')}
               </button>
             ))}
           </div>
@@ -284,22 +286,22 @@ export const MultiImageUpload: React.FC<MultiImageUploadProps> = ({
                   disabled={isTeleporting || images.length >= MAX_REFERENCE_IMAGES}
                   className="py-2 px-3 bg-cyber-800 hover:bg-cyber-700 border border-cyber-600 rounded flex items-center justify-center gap-2 text-xs text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Upload className="w-3 h-3" /> Upload
+                  <Upload className="w-3 h-3" /> {t('common.upload')}
                 </button>
                 <button
                   onClick={startCamera}
                   disabled={isTeleporting || images.length >= MAX_REFERENCE_IMAGES}
                   className="py-2 px-3 bg-cyber-800 hover:bg-cyber-700 border border-cyber-600 rounded flex items-center justify-center gap-2 text-xs text-slate-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Camera className="w-3 h-3" /> Camera
+                  <Camera className="w-3 h-3" /> {t('common.camera')}
                 </button>
               </div>
 
               {/* Info Text */}
               <div className="mt-2 text-[8px] text-slate-500 font-mono space-y-0.5">
-                <p>📸 <span className="text-cyber-400">You</span>: Your photo to place in the scene</p>
-                <p>⭐ <span className="text-yellow-400">Celebrity</span>: Famous person to appear with</p>
-                <p>📦 <span className="text-purple-400">Object</span>: Items to include in the image</p>
+                <p>📸 <span className="text-cyber-400">{t('traveler_identity.role_you')}</span>: {t('traveler_identity.role_you') === 'You' ? 'Your photo to place in the scene' : '放置在场景中的您的照片'}</p>
+                <p>⭐ <span className="text-yellow-400">{t('traveler_identity.role_celebrity')}</span>: {t('traveler_identity.role_celebrity') === 'Celebrity' ? 'Famous person to appear with' : '共同出现的名人'}</p>
+                <p>📦 <span className="text-purple-400">{t('traveler_identity.role_object')}</span>: {t('traveler_identity.role_object') === 'Object' ? 'Items to include in the image' : '包含在图像中的物品'}</p>
               </div>
             </>
           )}
@@ -307,8 +309,8 @@ export const MultiImageUpload: React.FC<MultiImageUploadProps> = ({
           {/* Capacity Indicator */}
           <div className="mt-3 pt-2 border-t border-cyber-800">
             <div className="flex justify-between text-[9px] text-slate-500 font-mono mb-1">
-              <span>People: {personImages.length}/{MAX_PERSON_IMAGES}</span>
-              <span>Total: {images.length}/{MAX_REFERENCE_IMAGES}</span>
+              <span>{t('traveler_identity.people')}: {personImages.length}/{MAX_PERSON_IMAGES}</span>
+              <span>{t('traveler_identity.total')}: {images.length}/{MAX_REFERENCE_IMAGES}</span>
             </div>
             <div className="h-1 bg-cyber-800 rounded-full overflow-hidden">
               <div 

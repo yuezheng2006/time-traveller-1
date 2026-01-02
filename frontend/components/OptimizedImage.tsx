@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 
 interface OptimizedImageProps {
   src: string;
@@ -26,6 +27,7 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
   rootMargin = '200px', // Start loading 200px before visible
   threshold = 0.01
 }) => {
+  const { t } = useTranslation();
   const [isLoaded, setIsLoaded] = useState(false);
   const [isInView, setIsInView] = useState(false);
   const [hasError, setHasError] = useState(false);
@@ -98,7 +100,7 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
       {/* Error state */}
       {hasError && (
         <div className="absolute inset-0 flex items-center justify-center bg-cyber-900/80">
-          <span className="text-cyber-500 text-xs font-mono">IMG ERROR</span>
+          <span className="text-cyber-500 text-xs font-mono">{t('common.img_error')}</span>
         </div>
       )}
     </div>

@@ -4,7 +4,8 @@ import { parseTravelCommand } from '../../services/gemini/commandParser';
 
 const bodySchema = z.object({
   message: z.string().min(1),
-  history: z.array(z.string()).optional().default([])
+  history: z.array(z.string()).optional().default([]),
+  language: z.string().optional().default('en')
 });
 
 export const config: ApiRouteConfig = {
@@ -32,11 +33,11 @@ export const config: ApiRouteConfig = {
 
 export const handler: Handlers['ParseTravelCommand'] = async (req, { logger, traceId }) => {
   try {
-    const { message, history } = bodySchema.parse(req.body);
+    const { message, history, language } = bodySchema.parse(req.body);
     
-    logger.info('Parsing travel command', { traceId, message });
+    logger.info('Parsing travel command', { traceId, message, language });
     
-    const result = await parseTravelCommand(message, history);
+    const result = await parseTravelCommand(message, history, language);
     
     logger.info('Command parsed', { traceId, isJump: result.isJump });
     
@@ -49,7 +50,7 @@ export const handler: Handlers['ParseTravelCommand'] = async (req, { logger, tra
     logger.error('Command parsing failed', { traceId, error: errMessage });
     return {
       status: 400,
-      body: { error: message }
+      body: { error: errMessage }
     };
   }
 };

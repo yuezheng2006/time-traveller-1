@@ -1,6 +1,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { Crosshair, Eye, Map as MapIcon, RefreshCw, AlertTriangle, Loader2, Globe, ShieldAlert, Zap, Search, Navigation } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface MapSelectorProps {
   onSelect: (coords: { lat: number; lng: number }) => void;
@@ -106,6 +107,7 @@ const DEFAULT_CENTER = { lat: 47.5763831, lng: -122.4211769 };
 const GOOGLE_MAPS_MAP_ID = import.meta.env.VITE_GOOGLE_MAPS_MAP_ID;
 
 export const MapSelector: React.FC<MapSelectorProps> = ({ onSelect }) => {
+  const { t } = useTranslation();
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const panoramaContainerRef = useRef<HTMLDivElement>(null);
   const leafletContainerRef = useRef<HTMLDivElement>(null);
@@ -145,11 +147,11 @@ export const MapSelector: React.FC<MapSelectorProps> = ({ onSelect }) => {
     }, 200);
 
     window.gm_authFailure = () => {
-      setErrorMsg("Maps API Key Rejected");
+      setErrorMsg(t('map.api_key_rejected'));
     };
 
     return () => clearInterval(interval);
-  }, []);
+  }, [t]);
 
   useEffect(() => {
     if (engine !== 'google' || !isScriptLoaded || !mapContainerRef.current) return;
@@ -418,7 +420,7 @@ export const MapSelector: React.FC<MapSelectorProps> = ({ onSelect }) => {
             handleGoogleSelect(lat, lng);
             setSearchQuery('');
           } else {
-            setSearchError('Location not found. Try a different search.');
+            setSearchError(t('map.search_error_not_found'));
           }
         });
       } else {
@@ -439,12 +441,12 @@ export const MapSelector: React.FC<MapSelectorProps> = ({ onSelect }) => {
           handleLeafletSelect(lat, lng);
           setSearchQuery('');
         } else {
-          setSearchError('Location not found. Try a different search.');
+          setSearchError(t('map.search_error_not_found'));
         }
       }
     } catch {
       setIsSearching(false);
-      setSearchError('Search failed. Please try again.');
+      setSearchError(t('map.search_error_failed'));
     }
   };
 
@@ -456,7 +458,7 @@ export const MapSelector: React.FC<MapSelectorProps> = ({ onSelect }) => {
 
   const handleUseMyLocation = () => {
     if (!navigator.geolocation) {
-      setSearchError('Geolocation not supported by your browser');
+      setSearchError(t('map.geolocation_not_supported'));
       return;
     }
     
@@ -483,16 +485,16 @@ export const MapSelector: React.FC<MapSelectorProps> = ({ onSelect }) => {
         setIsLocating(false);
         switch (error.code) {
           case error.PERMISSION_DENIED:
-            setSearchError('Location access denied. Please enable location permissions.');
+            setSearchError(t('map.geolocation_denied'));
             break;
           case error.POSITION_UNAVAILABLE:
-            setSearchError('Location unavailable. Please try again.');
+            setSearchError(t('map.geolocation_unavailable'));
             break;
           case error.TIMEOUT:
-            setSearchError('Location request timed out. Please try again.');
+            setSearchError(t('map.geolocation_timeout'));
             break;
           default:
-            setSearchError('Failed to get location. Please try again.');
+            setSearchError(t('map.geolocation_failed'));
         }
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
@@ -521,7 +523,7 @@ export const MapSelector: React.FC<MapSelectorProps> = ({ onSelect }) => {
       {errorMsg && (
           <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/90 p-6 text-center">
               <ShieldAlert className="w-12 h-12 text-red-500 mb-4" />
-              <h3 className="text-xl text-white font-bold mb-2">SATELLITE LINK FAILED</h3>
+              <h3 className="text-xl text-white font-bold mb-2">{t('map.satellite_failed')}</h3>
               <p className="text-slate-400 mb-6 font-mono text-sm max-w-xs">{errorMsg}</p>
               
               <div className="flex gap-4">
@@ -529,14 +531,14 @@ export const MapSelector: React.FC<MapSelectorProps> = ({ onSelect }) => {
                     onClick={handleRetry}
                     className="flex items-center gap-2 px-4 py-2 bg-cyber-900 border border-cyber-600 rounded text-cyber-400 hover:text-white hover:border-cyber-400 font-mono text-xs"
                   >
-                      <RefreshCw className="w-3 h-3" /> RECONNECT
+                      <RefreshCw className="w-3 h-3" /> {t('map.reconnect')}
                   </button>
                   {window.L && (
                       <button 
                         onClick={() => setEngine('leaflet')}
                         className="flex items-center gap-2 px-4 py-2 bg-cyber-500 text-black rounded font-mono text-xs font-bold"
                       >
-                          <Globe className="w-3 h-3" /> USE BACKUP LINK
+                          <Globe className="w-3 h-3" /> {t('map.use_backup_link')}
                       </button>
                   )}
               </div>
@@ -551,7 +553,7 @@ export const MapSelector: React.FC<MapSelectorProps> = ({ onSelect }) => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={handleSearchKeyDown}
-              placeholder="Search address, pincode, city..."
+              placeholder={t('map.search_placeholder')}
               className="w-full bg-black/90 backdrop-blur-md border border-cyber-500/50 rounded-lg py-2.5 pl-10 pr-20 text-sm text-white placeholder-slate-500 font-mono focus:outline-none focus:border-cyber-400 focus:ring-1 focus:ring-cyber-400/50 shadow-lg"
             />
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-cyber-500" />
@@ -563,7 +565,7 @@ export const MapSelector: React.FC<MapSelectorProps> = ({ onSelect }) => {
               {isSearching ? (
                 <Loader2 className="w-3 h-3 animate-spin" />
               ) : (
-                'GO'
+                t('map.go')
               )}
             </button>
           </div>
@@ -575,7 +577,7 @@ export const MapSelector: React.FC<MapSelectorProps> = ({ onSelect }) => {
           )}
           <div className="mt-2 flex items-center justify-center gap-3">
             <span className="text-[10px] text-slate-500 font-mono">
-              Try: "E17 4GA, London" or "Tokyo Tower"
+              {t('map.try_example')}
             </span>
             <button
               onClick={handleUseMyLocation}
@@ -587,7 +589,7 @@ export const MapSelector: React.FC<MapSelectorProps> = ({ onSelect }) => {
               ) : (
                 <Navigation className="w-3 h-3" />
               )}
-              {isLocating ? 'LOCATING...' : 'USE MY LOCATION'}
+              {isLocating ? t('map.locating') : t('map.use_my_location')}
             </button>
           </div>
         </div>
@@ -614,13 +616,13 @@ export const MapSelector: React.FC<MapSelectorProps> = ({ onSelect }) => {
                {!streetViewAvailable && (
                  <div className="bg-amber-900/90 backdrop-blur-md border border-amber-500/50 rounded-lg p-2 px-3 text-[10px] font-mono text-amber-300 flex items-center gap-2 shadow-lg max-w-[200px]">
                      <AlertTriangle className="w-3 h-3 flex-shrink-0" />
-                     <span>Street View unavailable - AI will visualize</span>
+                     <span>{t('map.street_view_unavailable_short')}</span>
                  </div>
                )}
                {streetViewAvailable && (
                  <div className="bg-green-900/90 backdrop-blur-md border border-green-500/50 rounded-lg p-2 px-3 text-[10px] font-mono text-green-300 flex items-center gap-2 shadow-lg">
                      <Eye className="w-3 h-3" />
-                     <span>Street View available</span>
+                     <span>{t('map.street_view_available')}</span>
                  </div>
                )}
                <div className="bg-black/80 backdrop-blur-md border border-cyber-500/30 rounded-lg p-2 px-4 text-xs font-mono text-cyber-400 shadow-[0_0_15px_rgba(14,165,233,0.1)]">

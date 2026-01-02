@@ -29,7 +29,8 @@ const bodySchema = z.object({
   }).optional(),
   imageConfig: imageConfigSchema,
   userGeminiKey: z.string().optional(),
-  userMapsKey: z.string().optional()
+  userMapsKey: z.string().optional(),
+  language: z.string().optional().default('en')
 });
 
 export const config: ApiRouteConfig = {
@@ -81,6 +82,7 @@ interface TeleportData {
   mapsApiKey: string;
   geminiApiKey?: string;
   userId: string;
+  language: string;
 }
 
 export const handler: Handlers['InitiateTeleport'] = async (req, { emit, logger, streams, state, traceId }) => {
@@ -94,7 +96,7 @@ export const handler: Handlers['InitiateTeleport'] = async (req, { emit, logger,
       };
     }
 
-    const { destination, era, style, referenceImage, referenceImages, coordinates, imageConfig, userGeminiKey, userMapsKey } = bodySchema.parse(req.body);
+    const { destination, era, style, referenceImage, referenceImages, coordinates, imageConfig, userGeminiKey, userMapsKey, language } = bodySchema.parse(req.body);
     
     const teleportId = `teleport-${userId}-${Date.now()}`;
     
@@ -104,6 +106,7 @@ export const handler: Handlers['InitiateTeleport'] = async (req, { emit, logger,
       destination, 
       era, 
       style,
+      language,
       hasReferenceImage: !!referenceImage,
       hasMultipleImages: referenceImages && referenceImages.length > 0,
       imageCount: referenceImages?.length || (referenceImage ? 1 : 0),
@@ -145,7 +148,8 @@ export const handler: Handlers['InitiateTeleport'] = async (req, { emit, logger,
       timestamp: Date.now(),
       mapsApiKey: userMapsKey || process.env.GOOGLE_API_KEY || '',
       geminiApiKey: userGeminiKey,
-      userId
+      userId,
+      language
     };
     
     await state.set('teleports', teleportId, teleportData);
@@ -171,7 +175,8 @@ export const handler: Handlers['InitiateTeleport'] = async (req, { emit, logger,
       data: {
         teleportId,
         destination,
-        era
+        era,
+        language
       }
     });
     

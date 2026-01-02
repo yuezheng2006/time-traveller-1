@@ -1,8 +1,16 @@
 import React from 'react';
-import { Zap, Map, Cpu, Server, Github } from 'lucide-react';
+import { Zap, Map, Cpu, Server, Languages } from 'lucide-react';
 import { AuthButton } from './AuthButton';
+import { useTranslation } from 'react-i18next';
 
 export const Header: React.FC = () => {
+  const { t, i18n } = useTranslation();
+
+  const toggleLanguage = () => {
+    const newLang = i18n.language.startsWith('en') ? 'zh' : 'en';
+    i18n.changeLanguage(newLang);
+  };
+
   return (
     <header className="bg-cyber-800/80 backdrop-blur-md border-b border-cyber-700 sticky top-0 z-50 shadow-[0_4px_20px_rgba(0,0,0,0.4)]">
       <div className="container mx-auto px-3 sm:px-4 md:px-6 py-2 sm:py-3 md:py-4 flex items-center justify-between gap-2 sm:gap-4">
@@ -20,16 +28,16 @@ export const Header: React.FC = () => {
           {/* Title - compact responsive text */}
           <div className="flex flex-col min-w-0">
             <h1 className="text-sm sm:text-lg md:text-xl lg:text-2xl font-black tracking-tight text-white font-mono italic transform -skew-x-3 drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] whitespace-nowrap">
-              <span className="hidden sm:inline">TIME </span>
+              <span className="hidden sm:inline">{t('header.title_part1')} </span>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyber-400 via-cyan-300 to-cyber-accent">
-                <span className="hidden sm:inline">TRAVELLER</span>
+                <span className="hidden sm:inline">{t('header.title_part2')}</span>
                 <span className="sm:hidden">TT</span>
               </span>
             </h1>
             {/* Subtitle - hidden on mobile */}
             <div className="hidden md:flex items-center gap-1 mt-0.5">
               <p className="text-[8px] lg:text-[9px] text-cyber-400/80 tracking-[0.1em] font-mono uppercase font-medium truncate">
-                Visit Any Place • Any Era
+                {t('header.subtitle')}
               </p>
             </div>
           </div>
@@ -40,7 +48,7 @@ export const Header: React.FC = () => {
             {/* Tech Stack Indicators - Only on extra large screens (1280px+) */}
             <div className="hidden 2xl:flex items-center gap-4">
                <div className="flex flex-col items-end gap-1">
-                 <div className="text-[10px] text-slate-500 font-mono uppercase tracking-widest">System Integrity</div>
+                 <div className="text-[10px] text-slate-500 font-mono uppercase tracking-widest">{t('header.system_integrity')}</div>
                  <div className="flex gap-1">
                     <div className="w-16 h-1 bg-cyber-500/20 rounded-full overflow-hidden">
                       <div className="h-full bg-cyber-500 animate-scan"></div>
@@ -59,7 +67,7 @@ export const Header: React.FC = () => {
                >
                  <TechBadge
                    icon={<Cpu className="w-3 h-3" />}
-                   label="GEMINI 3 BANANA PRO"
+                   label={t('tech_stack.gemini')}
                    color="text-purple-400"
                    glow="shadow-[0_0_10px_rgba(192,132,252,0.3)]"
                  />
@@ -72,7 +80,7 @@ export const Header: React.FC = () => {
                >
                  <TechBadge
                    icon={<Map className="w-3 h-3" />}
-                   label="STREET VIEW API"
+                   label={t('tech_stack.street_view')}
                    color="text-yellow-400"
                    glow="shadow-[0_0_10px_rgba(250,204,21,0.3)]"
                  />
@@ -85,26 +93,26 @@ export const Header: React.FC = () => {
                >
                 <TechBadge
                   icon={<Server className="w-3 h-3" />}
-                  label="MOTIA Backend Framework"
+                  label={t('tech_stack.motia')}
                   color="text-cyber-500"
                   glow="shadow-[0_0_10px_rgba(0,102,255,0.4)]"
                 />
                </a>
             </div>
 
-            {/* GitHub Link - Always visible on all screens */}
-            <a 
-              href="https://github.com/rohitg00/time-traveller" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="flex items-center gap-1.5 md:gap-2 text-slate-400 hover:text-white transition-all hover:scale-105 group/gh"
-              title="View Source on GitHub - Open Source"
+            {/* Language Switcher */}
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center gap-1.5 md:gap-2 text-slate-400 hover:text-white transition-all hover:scale-105 group/lang"
+              title={t('language.switch')}
             >
-              <div className="p-1.5 md:p-2 bg-cyber-900/50 rounded-md md:rounded-lg border border-cyber-700 group-hover/gh:border-cyber-500/50 group-hover/gh:bg-cyber-800 transition-all">
-                <Github className="w-4 h-4 md:w-5 md:h-5" />
+              <div className="p-1.5 md:p-2 bg-cyber-900/50 rounded-md md:rounded-lg border border-cyber-700 group-hover/lang:border-cyber-500/50 group-hover/lang:bg-cyber-800 transition-all">
+                <Languages className="w-4 h-4 md:w-5 md:h-5" />
               </div>
-              <span className="hidden sm:inline text-[10px] sm:text-xs font-mono font-bold tracking-wider">OPEN SOURCE</span>
-            </a>
+              <span className="hidden sm:inline text-[10px] sm:text-xs font-mono font-bold tracking-wider">
+                {t('language.label')}
+              </span>
+            </button>
 
             {/* Auth Button */}
             <AuthButton />

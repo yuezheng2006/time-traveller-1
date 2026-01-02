@@ -40,11 +40,9 @@ function getStream(): Stream {
 
   try {
     isConnecting = true;
-    streamInstance = new Stream(WS_URL, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    });
+    const url = new URL(WS_URL);
+    url.searchParams.set('token', token);
+    streamInstance = new Stream(url.toString());
     return streamInstance;
   } catch (error) {
     streamInstance = null;
@@ -88,6 +86,7 @@ export interface TeleportRequest {
   imageConfig?: ImageConfig;
   userGeminiKey?: string;
   userMapsKey?: string;
+  language?: string;
 }
 
 export interface TeleportResponse {
@@ -237,7 +236,8 @@ export async function getAudio(teleportId: string): Promise<AudioResponse> {
 
 export async function parseTravelCommand(
   message: string,
-  history: string[] = []
+  history: string[] = [],
+  language: string = 'en'
 ): Promise<{
   isJump: boolean;
   reply: string;
@@ -248,7 +248,7 @@ export async function parseTravelCommand(
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ message, history }),
+    body: JSON.stringify({ message, history, language }),
   });
 
   if (!response.ok) {

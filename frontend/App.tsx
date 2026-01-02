@@ -16,6 +16,7 @@ import { ApiKeyModal } from './components/ApiKeyModal';
 import { ScrollingGallery, MobileGallery } from './components/ScrollingGallery';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import { AlertCircle, Lock, Zap, Shield, Key } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 const MAX_FREE_GENERATIONS = 5;
 const STORAGE_KEY_GENERATIONS = 'time-traveller-generations-used';
@@ -25,6 +26,7 @@ const STORAGE_KEY_USER_MAPS = 'time-traveller-user-maps-key';
 // Main app content that uses auth
 const AppContent: React.FC = () => {
   const { user, loading: authLoading, isAuthConfigured } = useAuth();
+  const { t, i18n } = useTranslation();
   const [teleportState, setTeleportState] = useState<TeleportState>('idle');
   const [currentLocation, setCurrentLocation] = useState<TravelLogItem | null>(null);
   const [history, setHistory] = useState<TravelLogItem[]>([]);
@@ -42,6 +44,12 @@ const AppContent: React.FC = () => {
   // Real-time progress tracking from Motia streams
   const [teleportProgress, setTeleportProgress] = useState<number>(0);
   const [progressStatus, setProgressStatus] = useState<string>('');
+
+  useEffect(() => {
+    if (teleportState === 'idle') {
+      setProgressStatus(t('view_screen.awaiting_coords'));
+    }
+  }, [t, teleportState]);
   
   const [showTerms, setShowTerms] = useState<boolean>(false);
   const [showApiKeyModal, setShowApiKeyModal] = useState<boolean>(false);
@@ -76,11 +84,18 @@ const AppContent: React.FC = () => {
   const canGenerate = hasUserKeys || remainingFreeGenerations > 0;
 
   const handleSaveApiKeys = (geminiKey: string, mapsKey: string) => {
+    const oldMapsKey = localStorage.getItem(STORAGE_KEY_USER_MAPS);
+    
     setUserGeminiKey(geminiKey);
     setUserMapsKey(mapsKey);
     localStorage.setItem(STORAGE_KEY_USER_GEMINI, geminiKey);
     if (mapsKey) {
       localStorage.setItem(STORAGE_KEY_USER_MAPS, mapsKey);
+      
+      // If Maps key changed, we need to reload the page to load the new Google Maps script
+      if (mapsKey !== oldMapsKey) {
+        window.location.reload();
+      }
     }
   };
 
@@ -180,7 +195,7 @@ const AppContent: React.FC = () => {
     setTeleportState('teleporting');
     isTeleportingRef.current = true;
     setTeleportProgress(0);
-    setProgressStatus('Initiating temporal jump...');
+    setProgressStatus(t('control_panel.initiating_jump'));
     setError(null);
     setIsAudioPlaying(false);
     
@@ -213,6 +228,7 @@ const AppContent: React.FC = () => {
         imageConfig: imageConfig as api.ImageConfig,
         userGeminiKey: userGeminiKey || undefined,
         userMapsKey: userMapsKey || undefined,
+        language: i18n.language
       });
 
       const teleportId = response.teleportId;
@@ -236,16 +252,17 @@ const AppContent: React.FC = () => {
           // Only update status if we have valid progress (not -1 which means "keep existing")
           if (progress.status && progress.progress >= 0) {
             // Map status to user-friendly message
+            const loadingMessages = t('view_screen.loading_messages', { returnObjects: true }) as string[];
             const statusMessages: Record<string, string> = {
-              'pending': 'Preparing temporal jump...',
-              'initiated': 'Initiating temporal coordinates...',
-              'generating-image': 'Calibrating quantum flux...',
-              'rendering-image': 'Rendering spacetime image...',
-              'uploading-image': 'Storing visual data...',
-              'image-generated': 'Image captured successfully...',
-              'generating-details': 'Analyzing location data...',
-              'synthesizing-speech': 'Generating audio narration...',
-              'completed': 'Teleportation complete!',
+              'pending': loadingMessages[0],
+              'initiated': loadingMessages[0],
+              'generating-image': loadingMessages[1],
+              'rendering-image': loadingMessages[4],
+              'uploading-image': loadingMessages[9],
+              'image-generated': loadingMessages[3],
+              'generating-details': loadingMessages[2],
+              'synthesizing-speech': loadingMessages[5],
+              'completed': t('view_screen.traversing_spacetime'),
             };
             setProgressStatus(statusMessages[progress.status] || progress.status);
           }
@@ -300,7 +317,7 @@ const AppContent: React.FC = () => {
       setTimeout(() => {
         if (isTeleportingRef.current && !hasCompleted) {
           markComplete();
-          setError("Generation timeout. The image may still be processing - check your history in a moment.");
+          setError(t('errors.generation_timeout'));
           setTeleportState('error');
           unsubscribe();
         }
@@ -318,9 +335,9 @@ const AppContent: React.FC = () => {
       
       if (message.includes('403') || message.includes('Permission denied') || message.includes('not found')) {
          setHasApiKey(false);
-         setError("Authorization Link Severed. Please reconnect ID key.");
+         setError(t('errors.auth_link_severed'));
       } else {
-         setError(message || "Teleportation malfunction. Coordinates invalid.");
+         setError(message || t('errors.teleport_malfunction'));
       }
       setTeleportState('error');
     }
@@ -356,16 +373,17 @@ const AppContent: React.FC = () => {
         }
         // Only update status if we have valid progress (not -1 which means "keep existing")
         if (progress.status && progress.progress >= 0) {
+          const loadingMessages = t('view_screen.loading_messages', { returnObjects: true }) as string[];
           const statusMessages: Record<string, string> = {
-            'pending': 'Preparing temporal jump...',
-            'initiated': 'Initiating temporal coordinates...',
-            'generating-image': 'Calibrating quantum flux...',
-            'rendering-image': 'Rendering spacetime image...',
-            'uploading-image': 'Storing visual data...',
-            'image-generated': 'Image captured successfully...',
-            'generating-details': 'Analyzing location data...',
-            'synthesizing-speech': 'Generating audio narration...',
-            'completed': 'Teleportation complete!',
+            'pending': loadingMessages[0],
+            'initiated': loadingMessages[0],
+            'generating-image': loadingMessages[1],
+            'rendering-image': loadingMessages[4],
+            'uploading-image': loadingMessages[9],
+            'image-generated': loadingMessages[3],
+            'generating-details': loadingMessages[2],
+            'synthesizing-speech': loadingMessages[5],
+            'completed': t('view_screen.traversing_spacetime'),
           };
           setProgressStatus(statusMessages[progress.status] || progress.status);
         }
@@ -394,7 +412,7 @@ const AppContent: React.FC = () => {
           return;
         } else if (progress.status === 'error') {
           isTeleportingRef.current = false;
-          setError(progress.error || "Teleportation malfunction.");
+          setError(progress.error || t('errors.teleport_malfunction'));
           setTeleportState('error');
           return;
         }
@@ -404,7 +422,7 @@ const AppContent: React.FC = () => {
           setTimeout(poll, 1000);
         } else {
           isTeleportingRef.current = false;
-          setError("Teleportation timeout. Please try again.");
+          setError(t('errors.teleport_timeout'));
           setTeleportState('error');
         }
       } catch (err: unknown) {
@@ -479,9 +497,9 @@ const AppContent: React.FC = () => {
       setIsAudioPlaying(false);
       const errorMessage = err instanceof Error ? err.message : 'Unknown error';
       if (errorMessage.includes('not found') || errorMessage.includes('404')) {
-        setError("Audio not yet ready. Please wait a moment and try again.");
+        setError(t('errors.audio_not_ready'));
       } else {
-        setError("Audio synthesis subsystem failure or not yet ready.");
+        setError(t('errors.audio_subsystem_failure'));
       }
     }
   };
@@ -515,7 +533,7 @@ const AppContent: React.FC = () => {
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
             <div className="w-16 h-16 border-4 border-cyber-500/30 border-t-cyber-500 rounded-full animate-spin mx-auto mb-4" />
-            <p className="text-slate-400 font-mono">INITIALIZING TEMPORAL SYSTEMS...</p>
+            <p className="text-slate-400 font-mono uppercase">{t('common.loading')}</p>
           </div>
         </div>
       </div>
@@ -542,22 +560,22 @@ const AppContent: React.FC = () => {
               <div className="w-16 h-16 bg-cyber-500/10 rounded-full flex items-center justify-center mx-auto mb-6 border border-cyber-500/50">
                 <Lock className="w-8 h-8 text-cyber-500" />
               </div>
-              <h2 className="text-2xl font-bold text-white mb-2 font-mono">SECURITY CLEARANCE REQUIRED</h2>
+              <h2 className="text-2xl font-bold text-white mb-2 font-mono uppercase">{t('auth.security_clearance')}</h2>
               <p className="text-slate-400 mb-8 leading-relaxed">
-                To access <b>Gemini 3 Pro</b> AI time travel, you must verify your identity with a secure API Key.
+                {t('auth.security_desc')}
               </p>
               
               <button 
                 onClick={handleSelectKey}
-                className="w-full py-4 bg-cyber-500 hover:bg-cyber-400 text-black font-bold tracking-wider rounded-lg transition-all shadow-[0_0_20px_rgba(14,165,233,0.4)] hover:shadow-[0_0_30px_rgba(14,165,233,0.6)] flex items-center justify-center gap-2"
+                className="w-full py-4 bg-cyber-500 hover:bg-cyber-400 text-black font-bold tracking-wider rounded-lg transition-all shadow-[0_0_20px_rgba(14,165,233,0.2)] flex items-center justify-center gap-2"
               >
                 <Zap className="w-5 h-5" />
-                CONNECT ACCESS KEY
+                {t('auth.connect_key')}
               </button>
               
               <p className="mt-6 text-xs text-slate-500">
                 <a href="https://ai.google.dev/gemini-api/docs/billing" target="_blank" rel="noreferrer" className="hover:text-cyber-400 underline">
-                  View protocol documentation
+                  {t('auth.view_protocol')}
                 </a>
               </p>
            </div>
@@ -618,7 +636,7 @@ const AppContent: React.FC = () => {
             className={`hover:text-cyber-400 transition-colors flex items-center gap-1.5 ${hasUserKeys ? 'text-green-500' : remainingFreeGenerations === 0 ? 'text-red-400 animate-pulse' : remainingFreeGenerations <= 2 ? 'text-amber-400' : ''}`}
           >
             <Key className="w-3 h-3" />
-            {hasUserKeys ? 'USING YOUR API KEYS' : remainingFreeGenerations === 0 ? '⚠️ ADD API KEY' : `${remainingFreeGenerations} FREE LEFT`}
+            {hasUserKeys ? t('settings.using_your_keys') : remainingFreeGenerations === 0 ? t('settings.add_api_key') : t('settings.free_left', { count: remainingFreeGenerations })}
           </button>
           <span className="text-slate-700">|</span>
           <button 
@@ -626,7 +644,7 @@ const AppContent: React.FC = () => {
             className="hover:text-cyber-400 transition-colors flex items-center gap-1.5"
           >
             <Shield className="w-3 h-3" />
-            TERMS & PRIVACY
+            {t('common.terms_privacy')}
           </button>
         </div>
       </footer>

@@ -5,7 +5,8 @@ import { generateLocationDetails } from '../../services/gemini/locationService';
 const inputSchema = z.object({
   teleportId: z.string(),
   destination: z.string(),
-  era: z.string()
+  era: z.string(),
+  language: z.string().optional().default('en')
 });
 
 export const config: EventConfig = {
@@ -14,7 +15,6 @@ export const config: EventConfig = {
   description: 'Generates location description and maps information',
   subscribes: ['generate-location-details'],
   emits: ['location-details-generated', 'synthesize-speech'],
-  // @ts-expect-error - Zod schema compatible at runtime, TypeScript strictness issue
   input: inputSchema,
   flows: ['time-traveller-flow']
 };
@@ -27,12 +27,12 @@ interface LocationDetails {
 type GenerateLocationDetailsInput = z.infer<typeof inputSchema>;
 
 export const handler: Handlers['GenerateLocationDetails'] = async (input, { emit, logger, state, traceId }) => {
-  const { teleportId, destination, era } = input as GenerateLocationDetailsInput;
+  const { teleportId, destination, era, language } = input as GenerateLocationDetailsInput;
   
   try {
-    logger.info('Generating location details', { traceId, teleportId, destination });
+    logger.info('Generating location details', { traceId, teleportId, destination, language });
     
-    const { description, mapsUri } = await generateLocationDetails(destination, era);
+    const { description, mapsUri } = await generateLocationDetails(destination, era, language);
     
     logger.info('Location details generated', { traceId, teleportId });
     
@@ -43,7 +43,8 @@ export const handler: Handlers['GenerateLocationDetails'] = async (input, { emit
       topic: 'synthesize-speech',
       data: {
         teleportId,
-        text: description
+        text: description,
+        language
       }
     });
 

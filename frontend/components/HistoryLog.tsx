@@ -1,6 +1,8 @@
 import React from 'react';
 import { TravelLogItem, getImageSrc } from '../types';
 import { History, ChevronRight, Database, Clock, MapPin } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { getStyleLabel } from '../i18n/styleUtils';
 
 interface HistoryLogProps {
   history: TravelLogItem[];
@@ -9,6 +11,8 @@ interface HistoryLogProps {
 }
 
 export const HistoryLog: React.FC<HistoryLogProps> = ({ history, onSelect, currentId }) => {
+  const { t } = useTranslation();
+  
   if (history.length === 0) {
       return (
         <div className="bg-cyber-800/50 border border-cyber-700/50 rounded-xl p-4 lg:p-5 shadow-xl flex flex-col h-full backdrop-blur-sm">
@@ -16,7 +20,7 @@ export const HistoryLog: React.FC<HistoryLogProps> = ({ history, onSelect, curre
                 <div className="p-4 rounded-full bg-cyber-900/50 border border-cyber-700/30">
                     <Database className="w-6 h-6 opacity-50" />
                 </div>
-                <p className="font-mono text-xs uppercase tracking-widest">Temporal Database Empty</p>
+                <p className="font-mono text-xs uppercase tracking-widest">{t('history.empty')}</p>
             </div>
         </div>
       );
@@ -28,8 +32,8 @@ export const HistoryLog: React.FC<HistoryLogProps> = ({ history, onSelect, curre
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyber-500/50 to-transparent"></div>
       
       <h3 className="text-xs font-bold text-cyber-500 mb-4 font-mono uppercase tracking-[0.2em] flex items-center gap-2">
-        <History className="w-4 h-4" /> Temporal Archives
-        <span className="ml-auto text-[10px] text-slate-500">{history.length} RECORDS</span>
+        <History className="w-4 h-4" /> {t('history.archives')}
+        <span className="ml-auto text-[10px] text-slate-500">{history.length} {t('history.records')}</span>
       </h3>
       
       <div className="flex-1 overflow-y-auto space-y-2 pr-1 scrollbar-thin min-h-0">
@@ -74,7 +78,7 @@ export const HistoryLog: React.FC<HistoryLogProps> = ({ history, onSelect, curre
                             <span className="text-[10px] text-slate-400 font-mono flex items-center gap-1">
                                 <Clock className="w-3 h-3 opacity-50" /> {item.era}
                             </span>
-                            <span className="text-[9px] text-cyber-600 uppercase tracking-wider">{item.style}</span>
+                            <span className="text-[9px] text-cyber-600 uppercase tracking-wider">{getStyleLabel(item.style, t)}</span>
                         </div>
                         
                {currentId !== item.id && (

@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { TeleportState, TravelLogItem, getImageSrc } from '../types';
 import { Volume2, Loader2, VolumeX, Map, ExternalLink, Scan, Sparkles, Camera, AlertTriangle, Download } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
+import { getStyleLabel } from '../i18n/styleUtils';
 
 interface ViewScreenProps {
   state: TeleportState;
@@ -12,21 +14,10 @@ interface ViewScreenProps {
   progressStatus?: string;
 }
 
-// Status messages that cycle during loading for a realistic feel
-const loadingMessages = [
-  'Initializing temporal coordinates...',
-  'Calibrating quantum flux capacitor...',
-  'Scanning historical databases...',
-  'Generating visual matrix...',
-  'Rendering spacetime image...',
-  'Processing temporal data...',
-  'Stabilizing wormhole connection...',
-  'Decoding spatial frequencies...',
-  'Mapping chronological pathways...',
-  'Finalizing molecular reconstruction...',
-];
-
 export const ViewScreen: React.FC<ViewScreenProps> = ({ state, location, onPlayAudio, onStopAudio, isAudioPlaying, progress = 0, progressStatus }) => {
+  const { t } = useTranslation();
+  const loadingMessages = t('view_screen.loading_messages', { returnObjects: true }) as string[];
+  
   // Animated progress that smoothly increases from 0 to 95%
   const [animatedProgress, setAnimatedProgress] = useState(0);
   const [messageIndex, setMessageIndex] = useState(0);
@@ -152,9 +143,9 @@ export const ViewScreen: React.FC<ViewScreenProps> = ({ state, location, onPlayA
                 </div>
              </div>
           </div>
-          <h3 className="text-3xl text-white font-mono font-bold tracking-[0.3em] mb-3 drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">SYSTEM STANDBY</h3>
+          <h3 className="text-3xl text-white font-mono font-bold tracking-[0.3em] mb-3 drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">{t('view_screen.system_standby')}</h3>
           <p className="text-cyber-400 text-xs font-mono tracking-[0.2em] uppercase bg-cyber-900/50 py-1 px-3 rounded inline-block border border-cyber-500/30">
-            Awaiting Spacetime Coordinates
+            {t('view_screen.awaiting_coords')}
           </p>
         </div>
         
@@ -164,7 +155,7 @@ export const ViewScreen: React.FC<ViewScreenProps> = ({ state, location, onPlayA
         <div className="absolute bottom-6 right-6 w-8 h-8 border-b-2 border-r-2 border-cyber-500 opacity-60"></div>
         
         <div className="absolute top-8 left-16 text-[10px] text-cyber-600 font-mono">SYS.VER.2.0.5</div>
-        <div className="absolute bottom-8 right-16 text-[10px] text-cyber-600 font-mono animate-pulse">● CONNECTION STABLE</div>
+        <div className="absolute bottom-8 right-16 text-[10px] text-cyber-600 font-mono animate-pulse">{t('view_screen.connection_stable')}</div>
       </div>
     );
   }
@@ -235,7 +226,7 @@ export const ViewScreen: React.FC<ViewScreenProps> = ({ state, location, onPlayA
           </div>
           
           <h2 className="text-2xl md:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-white via-cyber-300 to-cyber-400 tracking-widest font-mono mb-4">
-            TRAVERSING SPACETIME
+            {t('view_screen.traversing_spacetime')}
           </h2>
           
           {/* Smooth progress bar - no dots */}
@@ -265,7 +256,7 @@ export const ViewScreen: React.FC<ViewScreenProps> = ({ state, location, onPlayA
           {/* Live indicator */}
           <div className="mt-4 flex items-center justify-center gap-2">
             <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse shadow-[0_0_8px_rgba(34,197,94,0.8)]"></span>
-            <span className="text-green-400 text-[10px] font-mono tracking-wider">LIVE STREAM ACTIVE</span>
+            <span className="text-green-400 text-[10px] font-mono tracking-wider">{t('view_screen.live_stream_active')}</span>
           </div>
         </div>
       </div>
@@ -291,7 +282,7 @@ export const ViewScreen: React.FC<ViewScreenProps> = ({ state, location, onPlayA
             </span>
                </div>
                <div className="text-cyber-400 font-mono text-xs tracking-widest uppercase pl-4 border-l border-cyber-500/50">
-                 EPOCH: {location.era}
+                 {t('view_screen.epoch')}: {location.era}
                </div>
              </div>
              
@@ -299,17 +290,17 @@ export const ViewScreen: React.FC<ViewScreenProps> = ({ state, location, onPlayA
                 {location.usedStreetView === false && (
                   <div className="bg-amber-900/80 backdrop-blur border border-amber-500/50 px-2 py-1 rounded text-[10px] font-mono text-amber-300 flex items-center gap-1" title="Street View unavailable for this location - AI visualization generated">
                     <Sparkles className="w-3 h-3" />
-                    AI GENERATED
+                    {t('view_screen.ai_generated')}
                   </div>
                 )}
                 {location.usedStreetView === true && (
                   <div className="bg-green-900/80 backdrop-blur border border-green-500/50 px-2 py-1 rounded text-[10px] font-mono text-green-300 flex items-center gap-1" title="Based on Google Street View imagery">
                     <Camera className="w-3 h-3" />
-                    STREET VIEW
+                    {t('view_screen.street_view')}
                   </div>
                 )}
                 <div className="bg-black/50 backdrop-blur border border-cyber-500/30 px-2 py-1 rounded text-[10px] font-mono text-cyber-300">
-                  IMG.RES.8K
+                  {t('view_screen.img_res_8k')}
                 </div>
              </div>
           </div>
@@ -317,7 +308,7 @@ export const ViewScreen: React.FC<ViewScreenProps> = ({ state, location, onPlayA
           {location.referenceImage && (
             <div className="absolute bottom-4 left-4 w-24 h-24 rounded border border-cyber-500/50 overflow-hidden bg-black shadow-lg group/ref">
                <img src={getImageSrc(location.referenceImage)} className="w-full h-full object-cover opacity-70 group-hover/ref:opacity-100 transition-opacity" alt="Reference" />
-               <div className="absolute bottom-0 inset-x-0 bg-black/70 text-[8px] text-center text-white font-mono py-0.5">REFERENCE</div>
+               <div className="absolute bottom-0 inset-x-0 bg-black/70 text-[8px] text-center text-white font-mono py-0.5">{t('view_screen.reference')}</div>
             </div>
           )}
 
@@ -325,10 +316,10 @@ export const ViewScreen: React.FC<ViewScreenProps> = ({ state, location, onPlayA
             <button
               onClick={handleDownloadImage}
               className="flex items-center gap-2 bg-cyber-900/90 backdrop-blur-md text-white px-4 py-2 rounded-lg border border-cyber-500/50 hover:bg-cyber-500 hover:text-black hover:shadow-[0_0_20px_rgba(14,165,233,0.6)] transition-all font-mono text-xs font-bold group/btn tracking-wide"
-              title="Download image"
+              title={t('view_screen.download')}
             >
               <Download className="w-3 h-3" />
-              <span className="hidden sm:inline">DOWNLOAD</span>
+              <span className="hidden sm:inline">{t('view_screen.download')}</span>
             </button>
             
             {location.mapsUri && (
@@ -339,7 +330,7 @@ export const ViewScreen: React.FC<ViewScreenProps> = ({ state, location, onPlayA
                 className="flex items-center gap-2 bg-cyber-900/90 backdrop-blur-md text-white px-4 py-2 rounded-lg border border-cyber-500/50 hover:bg-cyber-500 hover:text-black hover:shadow-[0_0_20px_rgba(14,165,233,0.6)] transition-all font-mono text-xs font-bold group/btn tracking-wide"
               >
                 <Map className="w-3 h-3" />
-                <span className="hidden sm:inline">OPEN STREET VIEW</span>
+                <span className="hidden sm:inline">{t('view_screen.open_street_view')}</span>
                 <ExternalLink className="w-3 h-3 opacity-50 group-hover/btn:opacity-100" />
               </a>
             )}
@@ -353,7 +344,7 @@ export const ViewScreen: React.FC<ViewScreenProps> = ({ state, location, onPlayA
           <div className="flex justify-between items-start mb-4">
              <h3 className="text-lg font-bold text-white flex items-center gap-3 font-mono tracking-wide">
                <Scan className="w-5 h-5 text-cyber-500" />
-               ENVIRONMENTAL ANALYSIS
+               {t('view_screen.environmental_analysis')}
              </h3>
             <button 
                onClick={isAudioPlaying ? onStopAudio : onPlayAudio}
@@ -364,9 +355,9 @@ export const ViewScreen: React.FC<ViewScreenProps> = ({ state, location, onPlayA
                }`}
              >
                {isAudioPlaying ? (
-                 <><VolumeX className="w-4 h-4" /> ABORT AUDIO STREAM</>
+                 <><VolumeX className="w-4 h-4" /> {t('view_screen.abort_audio')}</>
                ) : (
-                 <><Volume2 className="w-4 h-4" /> PLAY AUDIO GUIDE</>
+                 <><Volume2 className="w-4 h-4" /> {t('view_screen.play_audio')}</>
                )}
              </button>
           </div>
@@ -383,20 +374,19 @@ export const ViewScreen: React.FC<ViewScreenProps> = ({ state, location, onPlayA
             <div className="mt-4 p-3 bg-amber-900/20 border border-amber-500/30 rounded-lg flex items-start gap-3">
               <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5 flex-shrink-0" />
               <div className="text-xs text-amber-200/80">
-                <span className="font-bold text-amber-300">Street View Unavailable:</span> Google Street View does not have imagery for this exact location. 
-                This visualization was generated using AI based on location data and nearby landmarks.
+                <span className="font-bold text-amber-300">{t('view_screen.street_view_unavailable')}</span> {t('view_screen.street_view_unavailable_desc')}
               </div>
             </div>
           )}
 
           <div className="mt-6 pt-4 border-t border-cyber-700/50 flex flex-wrap items-center justify-between gap-4 text-xs font-mono text-slate-500 uppercase tracking-wider">
              <div className="flex gap-4">
-                <span><span className="text-cyber-600">RENDER:</span> {location.style}</span>
-                <span><span className="text-cyber-600">ID:</span> {location.id.slice(-6)}</span>
+                <span><span className="text-cyber-600">{t('view_screen.render')}:</span> {getStyleLabel(location.style, t)}</span>
+                <span><span className="text-cyber-600">{t('view_screen.id')}:</span> {location.id.slice(-6)}</span>
              </div>
              <div className="flex items-center gap-2">
                <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-               <span className="text-green-400">Live Data Stream Active</span>
+               <span className="text-green-400">{t('view_screen.live_data_stream')}</span>
              </div>
           </div>
         </div>

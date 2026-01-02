@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { 
   X, ChevronRight, ChevronLeft, Sparkles, Globe, Camera, Rocket
 } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface GuidedTourProps {
   onComplete: () => void;
@@ -15,47 +16,49 @@ interface TourStep {
   highlight: string;
 }
 
-const tourSteps: TourStep[] = [
-  {
-    title: "Choose Your Destination",
-    description: "Travel anywhere in the universe across any time period. Use Manual mode for quick input, Terminal for natural language commands, or Orbital to pick coordinates on an interactive map.",
-    icon: <Globe className="w-10 h-10" />,
-    features: [
-      "🌍 Earth locations (Paris, Tokyo, Pyramids of Giza)",
-      "🚀 Space & planets (Mars Colony, Moon Base, Saturn Rings)",
-      "🏛️ Historical sites (Ancient Rome, Medieval Castles)",
-      "🔮 Future worlds (Year 3000, Cyberpunk Cities)",
-    ],
-    highlight: "Try: 'Eiffel Tower in 1920' or coordinates '35.6762, 139.6503' for Tokyo"
-  },
-  {
-    title: "Add Your Photo",
-    description: "Upload a selfie or take a photo to be placed into your destination! The AI will seamlessly integrate you into any location, era, or world you choose.",
-    icon: <Camera className="w-10 h-10" />,
-    features: [
-      "📸 Upload from device or take a live photo",
-      "🎭 Get inserted into historical scenes",
-      "👽 Appear on alien planets",
-      "🎨 Choose visual styles: Realistic, Cyberpunk, Oil Painting & more",
-    ],
-    highlight: "Click the profile icon next to 'Engage Teleport' to add your photo"
-  },
-  {
-    title: "Explore & Download",
-    description: "After teleporting, explore your AI-generated destination with audio narration, download high-resolution images, and revisit past journeys in your Temporal Archives.",
-    icon: <Rocket className="w-10 h-10" />,
-    features: [
-      "🔊 AI audio guide describes your surroundings",
-      "💾 Download 8K images to share with friends",
-      "📚 All journeys saved in Temporal Archives",
-      "🗺️ Open locations in Google Street View",
-    ],
-    highlight: "Your history is private and stored securely in your account"
-  }
-];
-
 export const GuidedTour: React.FC<GuidedTourProps> = ({ onComplete }) => {
+  const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState(0);
+
+  const tourSteps: TourStep[] = [
+    {
+      title: t('tour.step1_title'),
+      description: t('tour.step1_desc'),
+      icon: <Globe className="w-10 h-10" />,
+      features: [
+        t('tour.step1_feature1'),
+        t('tour.step1_feature2'),
+        t('tour.step1_feature3'),
+        t('tour.step1_feature4'),
+      ],
+      highlight: t('tour.step1_highlight')
+    },
+    {
+      title: t('tour.step2_title'),
+      description: t('tour.step2_desc'),
+      icon: <Camera className="w-10 h-10" />,
+      features: [
+        t('tour.step2_feature1'),
+        t('tour.step2_feature2'),
+        t('tour.step2_feature3'),
+        t('tour.step2_feature4'),
+      ],
+      highlight: t('tour.step2_highlight')
+    },
+    {
+      title: t('tour.step3_title'),
+      description: t('tour.step3_desc'),
+      icon: <Rocket className="w-10 h-10" />,
+      features: [
+        t('tour.step3_feature1'),
+        t('tour.step3_feature2'),
+        t('tour.step3_feature3'),
+        t('tour.step3_feature4'),
+      ],
+      highlight: t('tour.step3_highlight')
+    }
+  ];
+
   const step = tourSteps[currentStep];
   const isFirstStep = currentStep === 0;
   const isLastStep = currentStep === tourSteps.length - 1;
@@ -104,7 +107,7 @@ export const GuidedTour: React.FC<GuidedTourProps> = ({ onComplete }) => {
         <div className="p-6 sm:p-8 pt-4">
           <div className="text-center mb-2">
             <span className="text-xs font-mono text-cyber-500 tracking-widest">
-              STEP {currentStep + 1} OF {tourSteps.length}
+              {t('tour.step_indicator', { current: currentStep + 1, total: tourSteps.length })}
             </span>
           </div>
 
@@ -138,7 +141,7 @@ export const GuidedTour: React.FC<GuidedTourProps> = ({ onComplete }) => {
           <div className="bg-cyber-500/10 border border-cyber-500/30 rounded-lg p-3 mb-6">
             <p className="text-xs text-cyber-300 font-mono flex items-start gap-2">
               <Sparkles className="w-4 h-4 flex-shrink-0 mt-0.5 text-cyber-400" />
-              <span><strong className="text-cyber-400">TIP:</strong> {step.highlight}</span>
+              <span><strong className="text-cyber-400">{t('common.tip')}</strong> {step.highlight}</span>
             </p>
           </div>
 
@@ -170,7 +173,7 @@ export const GuidedTour: React.FC<GuidedTourProps> = ({ onComplete }) => {
               }`}
             >
               <ChevronLeft className="w-4 h-4" />
-              Back
+              {t('tour.back')}
             </button>
             
             <button
@@ -180,11 +183,11 @@ export const GuidedTour: React.FC<GuidedTourProps> = ({ onComplete }) => {
               {isLastStep ? (
                 <>
                   <Rocket className="w-4 h-4" />
-                  Start Time Travelling!
+                  {t('tour.start')}
                 </>
               ) : (
                 <>
-                  Next
+                  {t('tour.next')}
                   <ChevronRight className="w-4 h-4" />
                 </>
               )}

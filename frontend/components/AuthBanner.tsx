@@ -6,6 +6,7 @@
 import React from 'react';
 import { LogIn, Shield, Lock, Github, Sparkles, MapPin, Clock, Camera, Rocket, Globe, Palette, Volume2, Users, Terminal, Cloud, Wand2, Box } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
+import { useTranslation } from 'react-i18next';
 
 // Import showcase images - diverse styles & capabilities
 import showcaseMagazine from '../assets/showcase/female-magazine-cover.png';
@@ -23,63 +24,65 @@ import showcaseParisCafe from '../assets/showcase/male-tokyo-city-pop.png';
 import showcaseSamurai from '../assets/showcase/male-ancient-samurai.png';
 
 // Showcase images ordered for balanced masonry layout
-const showcaseImages = [
-  { src: showcaseMagazine, title: 'Santorini Cover', style: 'Magazine Style' },
-  { src: showcaseSeoul, title: 'Seoul Night', style: 'Street Food Candid' },
-  { src: showcaseKyoto, title: 'Kyoto Temple', style: 'Traditional' },
-  { src: showcaseMars, title: 'Mars Colony', style: 'Sci-Fi 2150' },
-  { src: showcaseMale, title: 'Pop', style: 'Tokyo City Pop' },
-  { src: showcaseCeleb, title: 'Greece Vacation', style: 'With Celebrity' },
-  { src: showcaseGrid, title: 'Venice Cinematic', style: '9-Shot Grid' },
-  { src: showcaseGroup, title: 'Beach Memories', style: 'Group 3x3 Grid' },
-  { src: showcaseBook, title: 'Paris Memories', style: 'Photo Book' },
-  { src: showcaseRamen, title: 'Tokyo Ramen', style: 'Cinematic 8K' },
-  { src: showcaseParisCafe, title: 'Paris Cafe', style: 'Candid Moment' },
-  { src: showcaseCyberpunk, title: 'Neo Tokyo', style: 'Cyberpunk 2099' },
-  { src: showcaseSamurai, title: 'Ancient Japan', style: 'Samurai Era' },
-];
-
-const features = [
-  { 
-    icon: <Wand2 className="w-6 h-6 text-amber-400" />, 
-    title: 'Photo Restoration', 
-    desc: 'Breathe new life into old, damaged photos. AI repairs scratches, tears, and fading while enhancing to 16K DSLR quality with vivid colors.',
-    color: 'from-amber-500/20 to-orange-500/20 border-amber-500/30'
-  },
-  { 
-    icon: <Box className="w-6 h-6 text-cyan-400" />, 
-    title: 'Pixar 3D Style', 
-    desc: 'Transform yourself or groups into charming Pixar/Disney-style 3D characters with expressive faces, cinematic lighting, and vibrant scenes.',
-    color: 'from-cyan-500/20 to-teal-500/20 border-cyan-500/30'
-  },
-  { 
-    icon: <Users className="w-6 h-6 text-pink-400" />, 
-    title: 'Group Time Travel', 
-    desc: 'Bring the whole crew. Upload up to 14 people, celebrities, or pets to appear together in any historical or futuristic scene.',
-    color: 'from-pink-500/20 to-rose-500/20 border-pink-500/30'
-  },
-  { 
-    icon: <Palette className="w-6 h-6 text-purple-400" />, 
-    title: '16+ Art Styles', 
-    desc: 'Photorealistic 8K, Cyberpunk, Oil Painting, Vintage Film, Photo Book, Cinematic Grid, CCTV, Aerial Drone, and more. Render up to 4K.',
-    color: 'from-purple-500/20 to-violet-500/20 border-purple-500/30'
-  },
-  { 
-    icon: <Terminal className="w-6 h-6 text-green-400" />, 
-    title: 'Natural Language Terminal', 
-    desc: 'Navigate spacetime with conversation. Simply type "Take us to Paris in 1920" and the AI interprets your intent instantly.',
-    color: 'from-green-500/20 to-emerald-500/20 border-green-500/30'
-  },
-  { 
-    icon: <Github className="w-6 h-6 text-slate-300" />, 
-    title: '100% Open Source', 
-    desc: '5 free hosted generations, then add your own Gemini API key for unlimited free use. Or clone & self-host - MIT licensed, no lock-in.',
-    color: 'from-slate-500/20 to-gray-500/20 border-slate-500/30'
-  },
+const getShowcaseImages = (t: any) => [
+  { src: showcaseMagazine, title: t('auth_banner.showcase.santorini_title'), style: t('auth_banner.showcase.santorini_style') },
+  { src: showcaseSeoul, title: t('auth_banner.showcase.seoul_title'), style: t('auth_banner.showcase.seoul_style') },
+  { src: showcaseKyoto, title: t('auth_banner.showcase.kyoto_title'), style: t('auth_banner.showcase.kyoto_style') },
+  { src: showcaseMars, title: t('auth_banner.showcase.mars_title'), style: t('auth_banner.showcase.mars_style') },
+  { src: showcaseMale, title: t('auth_banner.showcase.pop_title'), style: t('auth_banner.showcase.pop_style') },
+  { src: showcaseCeleb, title: t('auth_banner.showcase.greece_title'), style: t('auth_banner.showcase.greece_style') },
+  { src: showcaseGrid, title: t('auth_banner.showcase.venice_title'), style: t('auth_banner.showcase.venice_style') },
+  { src: showcaseGroup, title: t('auth_banner.showcase.beach_title'), style: t('auth_banner.showcase.beach_style') },
+  { src: showcaseBook, title: t('auth_banner.showcase.paris_memories_title'), style: t('auth_banner.showcase.paris_memories_style') },
+  { src: showcaseRamen, title: t('auth_banner.showcase.tokyo_ramen_title'), style: t('auth_banner.showcase.tokyo_ramen_style') },
+  { src: showcaseParisCafe, title: t('auth_banner.showcase.paris_cafe_title'), style: t('auth_banner.showcase.paris_cafe_style') },
+  { src: showcaseCyberpunk, title: t('auth_banner.showcase.neo_tokyo_title'), style: t('auth_banner.showcase.neo_tokyo_style') },
+  { src: showcaseSamurai, title: t('auth_banner.showcase.ancient_japan_title'), style: t('auth_banner.showcase.ancient_japan_style') },
 ];
 
 export const AuthBanner: React.FC = () => {
   const { user, loading, signInWithGoogle, signInWithGitHub, isAuthConfigured } = useAuth();
+  const { t } = useTranslation();
+  const showcaseImages = getShowcaseImages(t);
+
+  const features = [
+    { 
+      icon: <Wand2 className="w-6 h-6 text-amber-400" />, 
+      title: t('features.photo_restoration_title'), 
+      desc: t('features.photo_restoration_desc'),
+      color: 'from-amber-500/20 to-orange-500/20 border-amber-500/30'
+    },
+    { 
+      icon: <Box className="w-6 h-6 text-cyan-400" />, 
+      title: t('features.pixar_3d_title'), 
+      desc: t('features.pixar_3d_desc'),
+      color: 'from-cyan-500/20 to-teal-500/20 border-cyan-500/30'
+    },
+    { 
+      icon: <Users className="w-6 h-6 text-pink-400" />, 
+      title: t('features.group_travel_title'), 
+      desc: t('features.group_travel_desc'),
+      color: 'from-pink-500/20 to-rose-500/20 border-pink-500/30'
+    },
+    { 
+      icon: <Palette className="w-6 h-6 text-purple-400" />, 
+      title: t('features.art_styles_title'), 
+      desc: t('features.art_styles_desc'),
+      color: 'from-purple-500/20 to-violet-500/20 border-purple-500/30'
+    },
+    { 
+      icon: <Terminal className="w-6 h-6 text-green-400" />, 
+      title: t('features.terminal_title'), 
+      desc: t('features.terminal_desc'),
+      color: 'from-green-500/20 to-emerald-500/20 border-green-500/30'
+    },
+    { 
+      icon: <Globe className="w-6 h-6 text-slate-300" />, 
+      title: t('features.community_title'), 
+      desc: t('features.community_desc'),
+      color: 'from-slate-500/20 to-gray-500/20 border-slate-500/30'
+    },
+  ];
 
   // Don't show if user is logged in
   if (user || loading) {
@@ -92,7 +95,7 @@ export const AuthBanner: React.FC = () => {
       <div className="bg-amber-900/30 border-b border-amber-500/30 px-4 py-2">
         <div className="container mx-auto flex items-center justify-center gap-2 text-amber-200 text-sm">
           <Shield className="w-4 h-4" />
-          <span className="font-mono">DEV MODE: Auth not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY to enable.</span>
+          <span className="font-mono">{t('auth_banner.dev_mode_notice')}</span>
         </div>
       </div>
     );
@@ -107,36 +110,35 @@ export const AuthBanner: React.FC = () => {
             {/* Left: Text Content (2 cols) */}
             <div className="text-center lg:text-left order-2 lg:order-1 lg:col-span-2">
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 mb-4">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-green-500/10 border border-green-500/30 rounded-full text-green-400 text-xs font-bold">
-                  <Github className="w-3 h-3" />
-                  100% OPEN SOURCE
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-purple-500/10 border border-purple-500/30 rounded-full text-purple-400 text-xs font-bold">
+                  <Rocket className="w-3 h-3" />
+                  {t('auth_banner.street_view_engine')}
                 </div>
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-cyber-500/10 border border-cyber-500/30 rounded-full text-cyber-400 text-xs font-mono">
                   <Sparkles className="w-3 h-3" />
-                  FREE FOREVER
+                  {t('auth_banner.free_forever')}
                 </div>
               </div>
               
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-4 leading-tight">
-                Travel <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyber-400 to-cyan-300">Anywhere</span>,{' '}
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">Any Era</span>
+                {t('auth_banner.hero_title').split(/[,、]/)[0]} <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyber-400 to-cyan-300">{t('auth_banner.hero_anywhere')}</span>,{' '}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">{t('auth_banner.hero_any_era')}</span>
               </h1>
               
               <p className="text-slate-400 text-base sm:text-lg mb-6 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-                See yourself in ancient Rome, 1920s Paris, or futuristic Tokyo. 
-                AI-powered time travel visualization that puts <strong className="text-white">you</strong> in the scene.
+                {t('auth_banner.hero_desc')}
               </p>
               
-              {/* Open Source Highlight */}
-              <div className="bg-gradient-to-r from-green-500/10 to-cyber-500/10 border border-green-500/30 rounded-xl p-4 mb-6 max-w-2xl">
+              {/* Premium Quality Highlight */}
+              <div className="bg-gradient-to-r from-amber-500/10 to-cyber-500/10 border border-amber-500/30 rounded-xl p-4 mb-6 max-w-2xl">
                 <div className="flex items-center gap-2 mb-2">
-                  <Github className="w-4 h-4 text-green-400" />
-                  <p className="text-sm text-green-300 font-bold">
-                    100% Open Source • FREE Lifetime Access
+                  <Sparkles className="w-4 h-4 text-amber-400" />
+                  <p className="text-sm text-amber-300 font-bold">
+                    {t('auth_banner.premium_highlight_title')}
                   </p>
                 </div>
                 <p className="text-xs text-slate-400 leading-relaxed">
-                  Try free with 5 hosted generations. Then add your own Gemini API key in settings for <strong className="text-green-300">unlimited free use forever</strong>. Or clone & self-host. MIT Licensed.
+                  {t('auth_banner.premium_highlight_desc')}
                 </p>
               </div>
 
@@ -152,26 +154,27 @@ export const AuthBanner: React.FC = () => {
                     <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
                     <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
                   </svg>
-                  Start with Google
+                  {t('auth_banner.start_google')}
                 </button>
 
-                <button
+                {/* GitHub login temporarily disabled */}
+                {/* <button
                   onClick={signInWithGitHub}
                   className="flex items-center justify-center gap-3 px-6 py-3.5 bg-cyber-800 hover:bg-cyber-700 text-white rounded-xl transition-all shadow-lg hover:shadow-xl active:scale-[0.98] hover:scale-[1.02] font-semibold border border-cyber-600"
                 >
                   <Github className="w-5 h-5" />
-                  Start with GitHub
-                </button>
+                  {t('auth_banner.start_github')}
+                </button> */}
               </div>
 
               <div className="space-y-2">
                 <p className="text-xs text-slate-500 flex items-center justify-center lg:justify-start gap-2">
                   <Shield className="w-3 h-3 text-green-500" />
-                  Your data is private & encrypted. 5 free generations included.
+                  {t('auth_banner.data_private')}
                 </p>
                 <p className="text-xs text-green-400 flex items-center justify-center lg:justify-start gap-2 font-semibold">
                   <Sparkles className="w-3 h-3" />
-                  Add your own API key in settings for unlimited lifetime free use
+                  {t('auth_banner.add_key_notice')}
                 </p>
               </div>
             </div>
@@ -209,7 +212,7 @@ export const AuthBanner: React.FC = () => {
         <div className="max-w-6xl mx-auto">
           <h2 className="text-center text-xl sm:text-2xl font-bold text-white mb-8 font-mono">
             <Rocket className="inline w-5 h-5 text-cyber-400 mr-2" />
-            WHAT YOU CAN DO
+            {t('auth_banner.what_you_can_do')}
           </h2>
           
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
@@ -240,10 +243,10 @@ export const AuthBanner: React.FC = () => {
           </div>
           
           <h3 className="text-2xl font-bold text-white mb-2 font-mono">
-            Ready to Time Travel?
+            {t('auth_banner.ready_to_travel')}
           </h3>
           <p className="text-slate-400 mb-6 text-sm">
-            Sign in to start your journey. Your history is private and secure.
+            {t('auth_banner.ready_desc')}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -259,13 +262,14 @@ export const AuthBanner: React.FC = () => {
               </svg>
               Google
             </button>
-            <button
+            {/* GitHub login temporarily disabled */}
+            {/* <button
               onClick={signInWithGitHub}
               className="flex items-center justify-center gap-2 px-5 py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-lg transition-all shadow-lg font-semibold text-sm border border-gray-700"
             >
               <Github className="w-4 h-4" />
               GitHub
-            </button>
+            </button> */}
           </div>
         </div>
       </div>
@@ -283,6 +287,7 @@ export const AuthRequiredModal: React.FC<{
   action?: string;
 }> = ({ isOpen, onClose, action = 'continue' }) => {
   const { signInWithGoogle, signInWithGitHub } = useAuth();
+  const { t } = useTranslation();
 
   if (!isOpen) return null;
 
@@ -308,11 +313,11 @@ export const AuthRequiredModal: React.FC<{
             <LogIn className="w-8 h-8 text-cyber-500" />
           </div>
           
-          <h2 className="text-2xl font-bold text-white mb-2 font-mono">
-            AUTHENTICATION REQUIRED
+          <h2 className="text-2xl font-bold text-white mb-2 font-mono uppercase">
+            {t('auth.auth_required')}
           </h2>
           <p className="text-slate-400 mb-6">
-            Sign in to {action} and keep your time travel journeys private and secure.
+            {t('auth.auth_required_desc')}
           </p>
 
           <div className="space-y-3">
@@ -329,10 +334,11 @@ export const AuthRequiredModal: React.FC<{
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
               </svg>
-              Continue with Google
+              {t('auth_banner.start_google')}
             </button>
 
-            <button
+            {/* GitHub login temporarily disabled */}
+            {/* <button
               onClick={() => {
                 signInWithGitHub();
                 onClose();
@@ -340,12 +346,12 @@ export const AuthRequiredModal: React.FC<{
               className="w-full flex items-center justify-center gap-3 px-4 py-3 bg-gray-900 hover:bg-gray-800 text-white rounded-lg transition-all font-medium border border-gray-700"
             >
               <Github className="w-5 h-5" />
-              Continue with GitHub
-            </button>
+              {t('auth_banner.start_github')}
+            </button> */}
           </div>
 
           <p className="mt-6 text-xs text-slate-500">
-            By signing in, you agree to our terms of service
+            {t('common.terms_privacy')}
           </p>
         </div>
       </div>

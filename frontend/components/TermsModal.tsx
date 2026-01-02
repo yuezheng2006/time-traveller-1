@@ -1,5 +1,6 @@
 import React from 'react';
 import { X, Shield, Clock, Database, Crown } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 
 interface TermsModalProps {
   isOpen: boolean;
@@ -7,6 +8,7 @@ interface TermsModalProps {
 }
 
 export const TermsModal: React.FC<TermsModalProps> = ({ isOpen, onClose }) => {
+  const { t } = useTranslation();
   if (!isOpen) return null;
 
   return (
@@ -20,7 +22,7 @@ export const TermsModal: React.FC<TermsModalProps> = ({ isOpen, onClose }) => {
         <div className="flex items-center justify-between p-6 border-b border-cyber-800 bg-cyber-900/50">
           <h2 className="text-xl font-bold text-white font-mono tracking-wide flex items-center gap-3">
             <Shield className="w-6 h-6 text-cyber-500" />
-            TERMS & PRIVACY PROTOCOL
+            {t('terms.protocol_title')}
           </h2>
           <button
             onClick={onClose}
@@ -35,21 +37,20 @@ export const TermsModal: React.FC<TermsModalProps> = ({ isOpen, onClose }) => {
           <section>
             <h3 className="text-white font-bold mb-3 flex items-center gap-2 text-base">
               <Database className="w-4 h-4 text-cyber-400" />
-              Data Storage & Retention
+              {t('terms.storage_title')}
             </h3>
             <p className="mb-3">
-              Time Traveller uses secure storage protocols to save your generated images, audio logs, and travel history. 
-              To maintain system efficiency and privacy:
+              {t('terms.storage_desc')}
             </p>
             <ul className="list-disc pl-5 space-y-2 text-slate-400">
               <li>
-                <strong className="text-cyber-300">Free Tier Retention:</strong> All travel data (images, audio, logs) for free users is stored for a maximum of <strong className="text-white">3 days</strong>.
+                <strong className="text-cyber-300">{t('terms.free_tier_retention')}</strong> {t('terms.free_tier_desc')}
               </li>
               <li>
-                After this period, data is automatically purged from our quantum archives to free up storage sectors.
+                {t('terms.purge_desc')}
               </li>
               <li>
-                We recommend downloading any important visual records to your local device immediately after your journey.
+                {t('terms.download_recommend')}
               </li>
             </ul>
           </section>
@@ -59,24 +60,24 @@ export const TermsModal: React.FC<TermsModalProps> = ({ isOpen, onClose }) => {
           <section>
             <h3 className="text-white font-bold mb-3 flex items-center gap-2 text-base">
               <Crown className="w-4 h-4 text-yellow-400" />
-              Time Traveller PRO (Coming Soon)
+              {t('terms.pro_title')}
             </h3>
             <div className="bg-gradient-to-r from-cyber-900 to-cyber-800 border border-cyber-700 p-4 rounded-xl">
               <p className="mb-2">
-                Upgrade your clearance level to access extended features:
+                {t('terms.upgrade_desc')}
               </p>
               <ul className="space-y-2 text-slate-400">
                 <li className="flex items-center gap-2">
                   <Clock className="w-3 h-3 text-cyber-500" />
-                  <span>Unlimited history retention (Lifetime Storage)</span>
+                  <span>{t('terms.unlimited_history')}</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Clock className="w-3 h-3 text-cyber-500" />
-                  <span>Higher resolution rendering (16K Upscaling)</span>
+                  <span>{t('terms.high_res')}</span>
                 </li>
                 <li className="flex items-center gap-2">
                   <Clock className="w-3 h-3 text-cyber-500" />
-                  <span>Priority queue for image generation</span>
+                  <span>{t('terms.priority_queue')}</span>
                 </li>
               </ul>
             </div>
@@ -85,11 +86,9 @@ export const TermsModal: React.FC<TermsModalProps> = ({ isOpen, onClose }) => {
           <div className="h-px bg-cyber-800/50" />
 
           <section>
-            <h3 className="text-white font-bold mb-3 text-base">Privacy Commitment</h3>
+            <h3 className="text-white font-bold mb-3 text-base">{t('terms.privacy_commitment')}</h3>
             <p>
-              We do not sell your personal data or travel logs to third-party timelines. 
-              Your uploaded reference photos are processed solely for the purpose of generating your requested visualization 
-              and are not used for training public AI models without your explicit consent.
+              {t('terms.privacy_desc')}
             </p>
           </section>
 
@@ -100,7 +99,7 @@ export const TermsModal: React.FC<TermsModalProps> = ({ isOpen, onClose }) => {
             onClick={onClose}
             className="px-6 py-2 bg-cyber-500 hover:bg-cyber-400 text-black font-bold font-mono rounded-lg transition-all shadow-[0_0_15px_rgba(14,165,233,0.3)]"
           >
-            ACKNOWLEDGE
+            {t('common.acknowledge')}
           </button>
         </div>
       </div>

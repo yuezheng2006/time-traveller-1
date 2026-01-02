@@ -5,7 +5,8 @@ import { uploadAudio, isSupabaseConfigured } from '../../services/supabase/stora
 
 const inputSchema = z.object({
   teleportId: z.string(),
-  text: z.string()
+  text: z.string(),
+  language: z.string().optional().default('en')
 });
 
 export const config: EventConfig = {
@@ -27,12 +28,12 @@ interface AudioData {
 type SynthesizeSpeechInput = z.infer<typeof inputSchema>;
 
 export const handler: Handlers['SynthesizeSpeech'] = async (input, { logger, state, traceId }) => {
-  const { teleportId, text } = input as SynthesizeSpeechInput;
+  const { teleportId, text, language } = input as SynthesizeSpeechInput;
   
   try {
-    logger.info('Synthesizing speech', { traceId, teleportId });
+    logger.info('Synthesizing speech', { traceId, teleportId, language });
     
-    const audioData = await synthesizeSpeech(text);
+    const audioData = await synthesizeSpeech(text, language);
     
     logger.info('Speech synthesized successfully', { traceId, teleportId });
     

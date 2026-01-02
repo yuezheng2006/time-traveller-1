@@ -9,7 +9,7 @@
 
 **Travel anywhere in the world, across any time period. See yourself in history!**
 
-[🚀 Live Demo](https://time-traveller-motia.vercel.app) • [⭐ GitHub](https://github.com/rohitg00/time-traveller) • [📖 Docs](#-quick-start)
+[🚀 Live Demo](https://time-traveller-motia.vercel.app) • [⭐ GitHub](https://github.com/yuezheng2006/time-traveller-1) • [📖 Docs](#-quick-start)
 
 </div>
 
