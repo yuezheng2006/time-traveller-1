@@ -264,26 +264,23 @@ export const ViewScreen: React.FC<ViewScreenProps> = ({ state, location, onPlayA
   }
 
   if (state === 'arrived' && location) {
-    const aspectRatioClass = {
-      '1:1': 'aspect-square',
-      '16:9': 'aspect-video',
-      '9:16': 'aspect-[9/16]',
-      '4:3': 'aspect-[4/3]',
-      '3:4': 'aspect-[3/4]',
-      '3:2': 'aspect-[3/2]',
-      '2:3': 'aspect-[2/3]',
-      '21:9': 'aspect-[21/9]',
-      '4:5': 'aspect-[4/5]',
-      '5:4': 'aspect-[5/4]',
-    }[location.aspectRatio || '16:9'] || 'aspect-video';
-
     return (
-      <div className="flex flex-col gap-6 animate-[fadeIn_0.8s_ease-out]">
-        <div className={`relative rounded-xl overflow-hidden border border-cyber-600 shadow-[0_0_40px_rgba(0,0,0,0.6)] group bg-black ${aspectRatioClass} ring-1 ring-cyber-500/50`}>
+      <div className="flex flex-col gap-6 animate-[fadeIn_0.8s_ease-out] items-center">
+        <div className="relative rounded-xl overflow-hidden border border-cyber-600 shadow-[0_0_40px_rgba(0,0,0,0.6)] group bg-black aspect-video ring-1 ring-cyber-500/50 flex items-center justify-center w-full max-h-[500px] md:max-h-[600px] lg:max-h-[700px]">
+          {/* Blurred background for portrait images */}
+          <div 
+            className="absolute inset-0 z-0 opacity-40 blur-2xl scale-110"
+            style={{ 
+              backgroundImage: `url(${getImageSrc(location.imageData)})`,
+              backgroundSize: 'cover',
+              backgroundPosition: 'center'
+            }}
+          />
+
           <img 
             src={getImageSrc(location.imageData)} 
             alt={`${location.destination} in ${location.era}`}
-            className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-105"
+            className="relative z-10 max-w-full max-h-full object-contain transition-transform duration-1000 group-hover:scale-[1.02]"
           />
 
           <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-start bg-gradient-to-b from-black/80 to-transparent">

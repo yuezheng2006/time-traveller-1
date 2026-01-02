@@ -262,7 +262,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
                     <Settings2 className="w-3 h-3" /> {t('settings.image_settings')}
                   </span>
                   <span className="text-[9px] text-slate-500">
-                    {imageConfig.aspectRatio} • {imageConfig.imageSize}
+                    {imageConfig.aspectRatio}
                   </span>
                 </button>
                 
@@ -288,32 +288,6 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
                             title={option.description}
                           >
                             {option.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-
-                    {/* Image Size (Added to Manual tab) */}
-                    <div className="space-y-1.5">
-                      <label className="text-[9px] text-slate-500 font-mono uppercase flex items-center gap-1">
-                        <Image className="w-2.5 h-2.5" /> {t('settings.resolution')}
-                      </label>
-                      <div className="grid grid-cols-3 gap-1">
-                        {IMAGE_SIZE_OPTIONS.map((option) => (
-                          <button
-                            key={option.value}
-                            type="button"
-                            onClick={() => setImageConfig(prev => ({ ...prev, imageSize: option.value }))}
-                            disabled={isTeleporting}
-                            className={`px-2 py-2 rounded text-[9px] font-mono transition-all border flex flex-col items-center ${
-                              imageConfig.imageSize === option.value
-                                ? 'bg-cyber-500/20 border-cyber-500 text-white'
-                                : 'bg-cyber-900 border border-cyber-800 text-slate-500 hover:border-cyber-600'
-                            }`}
-                            title={option.description}
-                          >
-                            <span className="font-bold">{option.label}</span>
-                            <span className="text-[7px] opacity-60">{option.resolution}</span>
                           </button>
                         ))}
                       </div>
