@@ -166,35 +166,35 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
   const isSubmitDisabled = isTeleporting || (activeTab === 'terminal' ? (!chatInput.trim() && !destination.trim()) : !destination.trim());
 
   return (
-    <div className="bg-cyber-800 border border-cyber-700 rounded-xl shadow-xl relative overflow-hidden group flex flex-col h-[500px] md:h-[600px]">
+    <div className="bg-cyber-800 border border-cyber-700 rounded-xl shadow-xl relative overflow-hidden group flex flex-col h-[480px] md:h-[580px]">
       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-cyber-500 to-transparent opacity-30"></div>
 
       <div className="flex border-b border-cyber-700 bg-cyber-900/50 shrink-0">
         <button 
           onClick={() => setActiveTab('manual')}
-          className={`flex-1 py-3 text-xs font-mono font-bold tracking-wider flex items-center justify-center gap-2 transition-all ${activeTab === 'manual' ? 'bg-cyber-800 text-cyber-400 border-b-2 border-cyber-500' : 'text-slate-500 hover:text-slate-300'}`}
+          className={`flex-1 py-2.5 text-xs font-mono font-bold tracking-wider flex items-center justify-center gap-2 transition-all ${activeTab === 'manual' ? 'bg-cyber-800 text-cyber-400 border-b-2 border-cyber-500' : 'text-slate-500 hover:text-slate-300'}`}
         >
-          <Sliders className="w-4 h-4" /> {t('control_panel.manual')}
+          <Sliders className="w-3.5 h-3.5" /> {t('control_panel.manual')}
         </button>
         <button 
           onClick={() => setActiveTab('terminal')}
-          className={`flex-1 py-3 text-xs font-mono font-bold tracking-wider flex items-center justify-center gap-2 transition-all ${activeTab === 'terminal' ? 'bg-cyber-800 text-cyber-400 border-b-2 border-cyber-500' : 'text-slate-500 hover:text-slate-300'}`}
+          className={`flex-1 py-2.5 text-xs font-mono font-bold tracking-wider flex items-center justify-center gap-2 transition-all ${activeTab === 'terminal' ? 'bg-cyber-800 text-cyber-400 border-b-2 border-cyber-500' : 'text-slate-500 hover:text-slate-300'}`}
         >
-          <Terminal className="w-4 h-4" /> {t('control_panel.terminal')}
+          <Terminal className="w-3.5 h-3.5" /> {t('control_panel.terminal')}
         </button>
         <button 
           onClick={() => setActiveTab('map')}
-          className={`flex-1 py-3 text-xs font-mono font-bold tracking-wider flex items-center justify-center gap-2 transition-all ${activeTab === 'map' ? 'bg-cyber-800 text-cyber-400 border-b-2 border-cyber-500' : 'text-slate-500 hover:text-slate-300'}`}
+          className={`flex-1 py-2.5 text-xs font-mono font-bold tracking-wider flex items-center justify-center gap-2 transition-all ${activeTab === 'map' ? 'bg-cyber-800 text-cyber-400 border-b-2 border-cyber-500' : 'text-slate-500 hover:text-slate-300'}`}
         >
-          <Globe className="w-4 h-4" /> {t('control_panel.orbital')}
+          <Globe className="w-3.5 h-3.5" /> {t('control_panel.orbital')}
         </button>
       </div>
 
       <div className="flex-1 overflow-y-auto scrollbar-thin relative">
-        <div className="p-6 pb-0 flex flex-col h-full">
+        <div className="p-4 md:p-5 pb-0 flex flex-col h-full">
           {activeTab === 'manual' && (
-            <div className="space-y-6">
-              <div className="space-y-2">
+            <div className="space-y-4">
+              <div className="space-y-1.5">
                 <label className="text-xs text-cyber-400 font-mono uppercase tracking-wider flex items-center gap-2">
                   <MapPin className="w-3 h-3" /> {t('control_panel.target_coords')}
                 </label>
@@ -203,13 +203,13 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
                   value={destination}
                   onChange={(e) => setDestination(e.target.value)}
                   placeholder={t('control_panel.placeholder_destination')}
-                  className="w-full bg-cyber-900 border border-cyber-700 rounded-lg px-4 py-3 text-white placeholder-slate-600 focus:border-cyber-500 focus:ring-1 focus:ring-cyber-500 outline-none transition-all font-mono"
+                  className="w-full bg-cyber-900 border border-cyber-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 focus:border-cyber-500 focus:ring-1 focus:ring-cyber-500 outline-none transition-all font-mono"
                   required
                   disabled={isTeleporting}
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <label className="text-xs text-cyber-400 font-mono uppercase tracking-wider flex items-center gap-2">
                   <Clock className="w-3 h-3" /> {t('control_panel.temporal_epoch')}
                 </label>
@@ -218,25 +218,25 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
                   value={era}
                   onChange={(e) => setEra(e.target.value)}
                   placeholder={t('control_panel.placeholder_era')}
-                  className="w-full bg-cyber-900 border border-cyber-700 rounded-lg px-4 py-3 text-white placeholder-slate-600 focus:border-cyber-500 focus:ring-1 focus:ring-cyber-500 outline-none transition-all font-mono"
+                  className="w-full bg-cyber-900 border border-cyber-700 rounded-lg px-4 py-2.5 text-sm text-white placeholder-slate-600 focus:border-cyber-500 focus:ring-1 focus:ring-cyber-500 outline-none transition-all font-mono"
                   required
                   disabled={isTeleporting}
                 />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-1.5">
                 <label className="text-xs text-cyber-400 font-mono uppercase tracking-wider flex items-center gap-2">
                   <Palette className="w-3 h-3" /> {t('control_panel.visual_renderer')}
                 </label>
-                <div className="max-h-[180px] overflow-y-auto scrollbar-thin scrollbar-thumb-cyber-700 scrollbar-track-transparent pr-1">
-                  <div className="grid grid-cols-2 gap-2">
+                <div className="max-h-[140px] md:max-h-[160px] overflow-y-auto scrollbar-thin scrollbar-thumb-cyber-700 scrollbar-track-transparent pr-1">
+                  <div className="grid grid-cols-2 gap-1.5">
                     {styles.map((s) => (
                       <button
                         key={s}
                         type="button"
                         onClick={() => setStyle(s)}
                         disabled={isTeleporting}
-                        className={`px-3 py-2 rounded-md text-[9px] uppercase font-mono text-left transition-all border truncate ${
+                        className={`px-3 py-1.5 rounded-md text-[9px] uppercase font-mono text-left transition-all border truncate ${
                           style === s
                             ? 'bg-cyber-500/20 border-cyber-500 text-white shadow-[0_0_10px_rgba(14,165,233,0.2)]'
                             : 'bg-cyber-900 border-cyber-700 text-slate-400 hover:border-slate-500'
@@ -252,7 +252,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
               </div>
 
               {/* Image Configuration (Moved inside Manual tab) */}
-              <div className="mt-6 mb-4 space-y-2 shrink-0">
+              <div className="mt-4 mb-3 space-y-1.5 shrink-0">
                 <button
                   type="button"
                   onClick={() => setShowImageSettings(!showImageSettings)}
@@ -267,9 +267,9 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
                 </button>
                 
                 {showImageSettings && (
-                  <div className="bg-cyber-900/50 border border-cyber-700 rounded-lg p-3 space-y-3 animate-[slideIn_0.2s_ease-out]">
+                  <div className="bg-cyber-900/50 border border-cyber-700 rounded-lg p-2.5 space-y-2.5 animate-[slideIn_0.2s_ease-out]">
                     {/* Aspect Ratio */}
-                    <div className="space-y-1.5">
+                    <div className="space-y-1">
                       <label className="text-[9px] text-slate-500 font-mono uppercase flex items-center gap-1">
                         <Maximize2 className="w-2.5 h-2.5" /> {t('settings.aspect_ratio')}
                       </label>
@@ -280,7 +280,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
                             type="button"
                             onClick={() => setImageConfig(prev => ({ ...prev, aspectRatio: option.value }))}
                             disabled={isTeleporting}
-                            className={`px-2 py-1.5 rounded text-[8px] font-mono transition-all border ${
+                            className={`px-1.5 py-1 rounded text-[8px] font-mono transition-all border ${
                               imageConfig.aspectRatio === option.value
                                 ? 'bg-cyber-500/20 border-cyber-500 text-white'
                                 : 'bg-cyber-900 border border-cyber-800 text-slate-500 hover:border-cyber-600'
@@ -300,10 +300,10 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
 
           {activeTab === 'terminal' && (
              <div className="h-full flex flex-col">
-                <div className="flex-1 bg-black/50 rounded-lg p-4 font-mono text-xs md:text-sm overflow-y-auto border border-cyber-800 space-y-3 mb-4">
+                <div className="flex-1 bg-black/50 rounded-lg p-3 font-mono text-xs md:text-sm overflow-y-auto border border-cyber-800 space-y-2 mb-3">
                    {chatLog.map((msg, i) => (
                      <div key={i} className={`${msg.role === 'user' ? 'text-right' : 'text-left'}`}>
-                        <span className={`inline-block px-3 py-2 rounded-lg ${
+                        <span className={`inline-block px-2.5 py-1.5 rounded-lg ${
                           msg.role === 'user' 
                             ? 'bg-cyber-900 border border-cyber-700 text-white' 
                             : 'text-cyber-400 font-bold'
@@ -321,21 +321,21 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
                    <div ref={chatEndRef} />
                 </div>
 
-                <form onSubmit={handleChatSubmit} className="relative shrink-0">
+                <form onSubmit={handleChatSubmit} className="relative shrink-0 mb-4">
                    <input 
                      type="text" 
                      value={chatInput}
                      onChange={(e) => setChatInput(e.target.value)}
                      placeholder={t('terminal.placeholder')}
-                     className="w-full bg-cyber-900 border border-cyber-700 rounded-lg pl-4 pr-12 py-3 text-white font-mono focus:border-cyber-500 outline-none"
+                     className="w-full bg-cyber-900 border border-cyber-700 rounded-lg pl-4 pr-10 py-2.5 text-sm text-white font-mono focus:border-cyber-500 outline-none"
                      disabled={isProcessingChat || isTeleporting}
                    />
                    <button 
                      type="submit"
                      disabled={!chatInput.trim() || isProcessingChat}
-                     className="absolute right-2 top-1/2 transform -translate-y-1/2 p-2 text-cyber-500 hover:text-cyber-300 disabled:opacity-50"
+                     className="absolute right-2 top-1/2 transform -translate-y-1/2 p-1.5 text-cyber-500 hover:text-cyber-300 disabled:opacity-50"
                    >
-                     <Send className="w-4 h-4" />
+                     <Send className="w-3.5 h-3.5" />
                    </button>
                 </form>
              </div>
@@ -343,30 +343,30 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
 
           {activeTab === 'map' && (
             <div className="h-full w-full flex flex-col relative">
-               <div className="flex-1 w-full rounded-lg overflow-hidden border border-cyber-700 relative bg-black min-h-[250px]">
+               <div className="flex-1 w-full rounded-lg overflow-hidden border border-cyber-700 relative bg-black min-h-[220px]">
                   <MapSelector onSelect={handleMapSelect} />
                </div>
                
                {selectedCoords && (
-                 <div className="mt-3 shrink-0 max-h-[200px] overflow-y-auto scrollbar-thin scrollbar-thumb-cyber-700 scrollbar-track-transparent">
+                 <div className="mt-2 shrink-0 max-h-[160px] overflow-y-auto scrollbar-thin scrollbar-thumb-cyber-700 scrollbar-track-transparent">
                    <LocationInfo coordinates={selectedCoords} onWeatherUpdate={onWeatherUpdate} />
                  </div>
                )}
                
-               <div className="mt-3 flex flex-col gap-2 shrink-0">
+               <div className="mt-2 flex flex-col gap-1.5 shrink-0 pb-4">
                   <p className="text-[10px] text-slate-500 font-mono flex items-center gap-1">
                     <span className="text-cyber-500">{t('map.warning')}</span> {t('map.orbital_targeting')}
                   </p>
                   
-                  <div className="flex gap-2 items-stretch">
+                  <div className="flex gap-2 items-stretch h-9">
                      <div className="relative flex-1">
-                        <Clock className="w-3 h-3 text-cyber-500 absolute left-3 top-1/2 -translate-y-1/2" />
+                        <Clock className="w-3 h-3 text-cyber-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
                         <input 
                           type="text" 
                           value={era} 
                           onChange={(e) => setEra(e.target.value)}
                           placeholder={t('map.era_placeholder')} 
-                          className="w-full h-full bg-cyber-900 border border-cyber-700 rounded pl-8 pr-2 text-xs text-white placeholder-slate-600 focus:border-cyber-500 outline-none"
+                          className="w-full h-full bg-cyber-900 border border-cyber-700 rounded pl-7 pr-2 text-[11px] text-white placeholder-slate-600 focus:border-cyber-500 outline-none"
                         />
                      </div>
                   </div>
@@ -377,7 +377,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
       </div>
 
       {(activeTab === 'manual' || activeTab === 'map' || activeTab === 'terminal') && (
-        <div className="shrink-0 p-4 pt-2 border-t border-cyber-700/50 bg-cyber-800 flex gap-2 items-center">
+        <div className="shrink-0 p-3 pt-1 border-t border-cyber-700/50 bg-cyber-800 flex gap-2 items-center">
           <div className="shrink-0">
             <MultiImageUpload
               images={referenceImages}
@@ -390,7 +390,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
             type="button"
             onClick={handleSubmit}
             disabled={isSubmitDisabled}
-            className={`flex-1 relative group overflow-hidden rounded-lg p-4 font-bold tracking-wider transition-all ${
+            className={`flex-1 relative group overflow-hidden rounded-lg p-3 font-bold tracking-wider transition-all ${
               isSubmitDisabled
                 ? 'bg-cyber-900 border border-cyber-800 text-slate-600 cursor-not-allowed'
                 : 'bg-cyber-500 hover:bg-cyber-400 text-black shadow-[0_0_20px_rgba(14,165,233,0.4)] hover:shadow-[0_0_30px_rgba(14,165,233,0.6)] cursor-pointer'
@@ -404,7 +404,7 @@ export const ControlPanel: React.FC<ControlPanelProps> = ({ onTeleport, isTelepo
                 </>
               ) : (
                 <>
-                  <Send className="w-5 h-5" /> {activeTab === 'map' && selectedCoords ? t('control_panel.jump_to_coords') : t('control_panel.engage_teleport')}
+                  <Send className="w-4 h-4" /> {activeTab === 'map' && selectedCoords ? t('control_panel.jump_to_coords') : t('control_panel.engage_teleport')}
                 </>
               )}
             </span>
