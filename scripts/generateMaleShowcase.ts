@@ -99,6 +99,11 @@ Same celebrity throughout, moody blue and gold lighting. Japanese title typograp
     referenceUrl: REFERENCE_IMAGES.keanu_reeves,
     prompt: `Using the reference photo of Keanu Reeves, create a high-end fashion magazine cover (like GQ or Vogue Hommes) featuring him. He's wearing a sophisticated designer suit, looking directly at the camera with a mysterious and intense gaze. High-contrast studio lighting, sharp focus. Modern magazine layout with elegant typography. He looks like a world-class icon and style leader. 8K resolution, professional editorial photography. Maintain his iconic facial features and charismatic presence.`,
   },
+  {
+    filename: 'og-celeb.png',
+    referenceUrl: REFERENCE_IMAGES.keanu_reeves,
+    prompt: `A grand, cinematic, and epic masterpiece featuring Keanu Reeves as a mysterious "Time Traveller". He is standing at the edge of a swirling blue and gold temporal portal. In the background, multiple eras are blending together: Ancient Rome, futuristic Neo-Tokyo, and a 1920s jazz club. Dramatic volumetric lighting, sparks of temporal energy, epic atmosphere. Cinematic widescreen composition. 8K resolution, photorealistic, IMAX quality. This is for a high-end movie poster or website hero image. Maintain his iconic facial features.`,
+  },
 ];
 
 async function fetchImageAsBase64(url: string): Promise<{ data: string; mimeType: string } | null> {
