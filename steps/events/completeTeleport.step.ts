@@ -1,6 +1,6 @@
 import { EventConfig, Handlers } from 'motia';
 import { z } from 'zod';
-import { saveHistory, isSupabaseConfigured } from '../../services/supabase/historyService';
+import { saveHistory, saveAudio, isSupabaseConfigured } from '../../services/supabase/historyService';
 
 const inputSchema = z.object({
   teleportId: z.string()
@@ -9,8 +9,8 @@ const inputSchema = z.object({
 export const config: EventConfig = {
   name: 'CompleteTeleport',
   type: 'event',
-  description: 'Completes the teleportation sequence when both image and details are ready',
-  subscribes: ['image-generated', 'location-details-generated'],
+  description: 'Completes the teleportation sequence when image, details, and audio are ready',
+  subscribes: ['image-generated', 'location-details-generated', 'audio-synthesized'],
   emits: [],
   input: inputSchema,
   flows: ['time-traveller-flow']
@@ -25,6 +25,11 @@ interface ImageState {
 interface LocationDetails {
   description: string;
   mapsUri?: string;
+}
+
+interface AudioState {
+  audioData?: string;
+  audioUrl?: string;
 }
 
 interface TeleportData {
@@ -49,14 +54,16 @@ export const handler: Handlers['CompleteTeleport'] = async (input, { logger, str
     
     const imageState = await state.get<ImageState>('teleport-images', teleportId);
     const detailsState = await state.get<LocationDetails>('teleport-details', teleportId);
+    const audioState = await state.get<AudioState>('teleport-audio', teleportId);
     const teleportData = await state.get<TeleportData>('teleports', teleportId);
     
-    if (!imageState || !detailsState || !teleportData) {
+    if (!imageState || !detailsState || !teleportData || !audioState) {
       logger.info('Waiting for remaining data', { 
         traceId,
         teleportId,
         hasImage: !!imageState,
         hasDetails: !!detailsState,
+        hasAudio: !!audioState,
         hasData: !!teleportData
       });
       return;
@@ -106,6 +113,18 @@ export const handler: Handlers['CompleteTeleport'] = async (input, { logger, str
           aspect_ratio: teleportData.imageConfig?.aspectRatio,
         });
         logger.info('History stored in Supabase for user', { teleportId, userId });
+
+        if (audioState.audioUrl) {
+          try {
+            await saveAudio(teleportId, audioState.audioUrl);
+            logger.info('Audio record stored in Supabase', { teleportId });
+          } catch (audioDbError) {
+            logger.warn('Failed to store audio record in Supabase', { 
+              teleportId, 
+              error: audioDbError instanceof Error ? audioDbError.message : 'Unknown error'
+            });
+          }
+        }
       } catch (historyError) {
         logger.warn('Failed to store history in Supabase', { 
           teleportId, 

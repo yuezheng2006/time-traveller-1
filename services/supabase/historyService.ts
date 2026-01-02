@@ -69,6 +69,21 @@ export async function saveHistory(item: HistoryItem): Promise<void> {
   }
 }
 
+export async function saveAudio(teleportId: string, audioUrl: string): Promise<void> {
+  const client = getSupabaseClient();
+  
+  const { error } = await client
+    .from('teleport_audio')
+    .upsert({
+      teleport_id: teleportId,
+      audio_url: audioUrl
+    });
+  
+  if (error) {
+    throw new Error(`Failed to save audio history: ${error.message}`);
+  }
+}
+
 export async function getHistory(userId: string, limit: number = 100): Promise<HistoryItemResponse[]> {
   const client = getSupabaseClient();
   

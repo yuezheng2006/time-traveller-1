@@ -204,7 +204,7 @@
     "whitelisted_access": "Whitelisted Access Enabled"
   },
   "terminal": {
-    "nav_system_online": "Time Traveller NavSystem v9.2 online. Awaiting command.",
+    "nav_system_online": "Time Traveller NavSystem online. Awaiting command.",
     "analyzing_request": "Analyzing request",
     "placeholder": "Enter jump command (e.g. 'Take me to Paris, 1920')",
     "error": "Error processing navigational data."

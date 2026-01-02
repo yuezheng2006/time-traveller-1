@@ -1,7 +1,15 @@
 import { Stream } from '@motiadev/stream-client-browser';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
-const WS_URL = import.meta.env.VITE_WS_URL || 'ws://localhost:3000';
+const isLocalhost = typeof window !== 'undefined' && 
+  (window.location.hostname === 'localhost' || 
+   window.location.hostname === '127.0.0.1' || 
+   window.location.hostname.startsWith('192.168.'));
+
+export const API_BASE_URL = import.meta.env.VITE_API_URL || 
+  (isLocalhost ? 'http://localhost:3000' : (typeof window !== 'undefined' ? window.location.origin : ''));
+
+export const WS_URL = import.meta.env.VITE_WS_URL || 
+  (isLocalhost ? 'ws://localhost:3000' : (typeof window !== 'undefined' ? window.location.origin.replace(/^http/, 'ws') : ''));
 
 function getAuthToken(): string | null {
   return localStorage.getItem('tt_access_token');

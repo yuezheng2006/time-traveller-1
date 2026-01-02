@@ -18,53 +18,83 @@ export const ViewScreen: React.FC<ViewScreenProps> = ({ state, location, onPlayA
   const { t } = useTranslation();
   const loadingMessages = t('view_screen.loading_messages', { returnObjects: true }) as string[];
   
-  // Animated progress that smoothly increases from 0 to 95%
+  // Animated progress that smoothly increases from 0 to 95% (fallback when no real progress)
   const [animatedProgress, setAnimatedProgress] = useState(0);
   const [messageIndex, setMessageIndex] = useState(0);
   const animationRef = useRef<number | null>(null);
   const startTimeRef = useRef<number>(0);
   const isCompletedRef = useRef(false);
+  const lastRealProgressRef = useRef<number>(0);
 
-  // Start animation when teleporting begins
+  // Update animatedProgress to follow actual progress from backend
+  useEffect(() => {
+    if (state === 'teleporting' && typeof progress === 'number' && progress >= 0) {
+      // If we have real progress from backend, use it
+      if (progress > 0) {
+        lastRealProgressRef.current = progress;
+        // Stop animation and use real progress
+        if (animationRef.current) {
+          cancelAnimationFrame(animationRef.current);
+          animationRef.current = null;
+        }
+        setAnimatedProgress(progress);
+      } else if (progress === 0) {
+        // Reset when progress is 0 (new teleport started)
+        lastRealProgressRef.current = 0;
+        setAnimatedProgress(0);
+      }
+    }
+  }, [progress, state]);
+
+  // Start fallback animation when teleporting begins (only if no real progress yet)
   useEffect(() => {
     if (state === 'teleporting') {
       // Reset on new teleport
       startTimeRef.current = Date.now();
       isCompletedRef.current = false;
-      setAnimatedProgress(0);
       
-      const animate = () => {
-        // Stop if completed
-        if (isCompletedRef.current) return;
+      // Only start animation if we don't have real progress yet
+      if (lastRealProgressRef.current === 0) {
+        setAnimatedProgress(0);
         
-        const elapsed = Date.now() - startTimeRef.current;
-        const duration = 35000; // 35 seconds to reach 95%
+        const animate = () => {
+          // Stop if completed or if we have real progress
+          if (isCompletedRef.current || lastRealProgressRef.current > 0) return;
+          
+          const elapsed = Date.now() - startTimeRef.current;
+          const duration = 35000; // 35 seconds to reach 95%
+          
+          // Smooth easing - starts fast, slows down near the end
+          const t = Math.min(elapsed / duration, 1);
+          const eased = 1 - Math.pow(1 - t, 2); // ease-out quadratic
+          const targetProgress = eased * 95;
+          
+          // Only update if we still don't have real progress
+          if (lastRealProgressRef.current === 0) {
+            setAnimatedProgress(targetProgress);
+          }
+          
+          if (t < 1 && lastRealProgressRef.current === 0) {
+            animationRef.current = requestAnimationFrame(animate);
+          }
+        };
         
-        // Smooth easing - starts fast, slows down near the end
-        const t = Math.min(elapsed / duration, 1);
-        const eased = 1 - Math.pow(1 - t, 2); // ease-out quadratic
-        const targetProgress = eased * 95;
-        
-        setAnimatedProgress(targetProgress);
-        
-        if (t < 1) {
-          animationRef.current = requestAnimationFrame(animate);
-        }
-      };
-      
-      animationRef.current = requestAnimationFrame(animate);
+        animationRef.current = requestAnimationFrame(animate);
+      }
       
       return () => {
         if (animationRef.current) {
           cancelAnimationFrame(animationRef.current);
+          animationRef.current = null;
         }
       };
     } else {
       // Reset when not teleporting
       setAnimatedProgress(0);
       isCompletedRef.current = false;
+      lastRealProgressRef.current = 0;
     }
-  }, [state]); // Only depend on state, not progress
+  }, [state]); // Only depend on state
 
   // Jump to 100% when completed
   useEffect(() => {
@@ -72,8 +102,10 @@ export const ViewScreen: React.FC<ViewScreenProps> = ({ state, location, onPlayA
       isCompletedRef.current = true;
       if (animationRef.current) {
         cancelAnimationFrame(animationRef.current);
+        animationRef.current = null;
       }
       setAnimatedProgress(100);
+      lastRealProgressRef.current = 100;
     }
   }, [progress, state]);
 
@@ -161,7 +193,9 @@ export const ViewScreen: React.FC<ViewScreenProps> = ({ state, location, onPlayA
   }
 
   if (state === 'teleporting') {
-    const displayProgress = Math.max(5, Math.min(animatedProgress, 100)); // Use animated progress
+    // Prioritize actual progress from backend, fallback to animated progress
+    const actualProgress = typeof progress === 'number' && progress > 0 ? progress : animatedProgress;
+    const displayProgress = Math.max(5, Math.min(actualProgress, 100));
     const currentMessage = progressStatus || loadingMessages[messageIndex];
     
     return (

@@ -133,18 +133,6 @@ export async function uploadAudio(
         .getPublicUrl(filename);
       
       const audioUrl = urlData.publicUrl;
-      
-      const { error: dbError } = await client
-        .from('teleport_audio')
-        .upsert({
-          teleport_id: teleportId,
-          audio_url: audioUrl
-        });
-      
-      if (dbError) {
-        console.warn('Failed to store audio URL in database:', dbError.message);
-      }
-      
       return audioUrl;
     } catch (err) {
       lastError = err instanceof Error ? err : new Error('Unknown error');

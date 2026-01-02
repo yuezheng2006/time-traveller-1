@@ -50,8 +50,8 @@ export default defineConfig(({ mode }) => {
         include: ['react', 'react-dom', 'lucide-react'],
       },
       define: {
-        'import.meta.env.VITE_API_URL': JSON.stringify(env.VITE_API_URL || 'http://localhost:3000'),
-        'import.meta.env.VITE_WS_URL': JSON.stringify(env.VITE_WS_URL || 'ws://localhost:3000'),
+        'import.meta.env.VITE_API_URL': JSON.stringify(env.VITE_API_URL || ''),
+        'import.meta.env.VITE_WS_URL': JSON.stringify(env.VITE_WS_URL || ''),
         'import.meta.env.VITE_GOOGLE_API_KEY': JSON.stringify(env.VITE_GOOGLE_API_KEY || env.GOOGLE_API_KEY || ''),
         // Supabase - try VITE_ prefixed first, then fall back to non-prefixed
         'import.meta.env.VITE_SUPABASE_URL': JSON.stringify(env.VITE_SUPABASE_URL || env.SUPABASE_URL || ''),

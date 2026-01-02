@@ -209,7 +209,7 @@
     "whitelisted_access": "白名单特权已开启"
   },
   "terminal": {
-    "nav_system_online": "时空旅行者导航系统 v9.2 已上线. 等待指令。",
+    "nav_system_online": "时空旅行者导航系统已上线. 等待指令。",
     "analyzing_request": "正在分析请求",
     "placeholder": "输入跳转指令（例如：‘带我去 1920 年的巴黎’）",
     "error": "处理导航数据时出错。"
