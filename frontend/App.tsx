@@ -129,8 +129,9 @@ const AppContent: React.FC = () => {
     const loadHistory = async () => {
       if (authLoading) return;
 
-      // Always try to load from localStorage first as fallback
+      // Always load from localStorage first for instant display
       const localHistory = loadLocalHistory();
+      setHistory(localHistory); // Show local history immediately
 
       if (user && isAuthConfigured) {
         try {
@@ -140,15 +141,13 @@ const AppContent: React.FC = () => {
             imageData: item.imageUrl || item.imageData || '', // Handle both URL and base64
             referenceImage: item.referenceImageUrl || item.referenceImage,
           }));
-          setHistory(formattedHistory);
-        } catch {
-          // Fallback to local history if server fails
-          if (localHistory.length > 0) {
-            setHistory(localHistory);
+          // Only use server history if it has data, otherwise keep local
+          if (formattedHistory.length > 0) {
+            setHistory(formattedHistory);
           }
+        } catch {
+          // Keep local history on error
         }
-      } else {
-        setHistory(localHistory);
       }
     };
 
