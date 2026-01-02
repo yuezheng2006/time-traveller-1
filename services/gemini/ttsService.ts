@@ -13,7 +13,7 @@ export async function synthesizeSpeech(text: string, language: string = 'en'): P
         speechConfig: {
           voiceConfig: {
             prebuiltVoiceConfig: { 
-              voiceName: language === 'zh' ? 'Aoife' : 'Fenrir' // Assuming Aoife might be better for multi-lang or just Fenrir
+              voiceName: language === 'zh' ? 'Aoede' : 'Fenrir' // Use Aoede instead of Aoife
             }, 
           },
         },

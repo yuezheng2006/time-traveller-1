@@ -194,7 +194,7 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({ history, onSelect }) =
       
       <footer className="p-8 text-center border-t border-cyber-900/50 mt-12">
         <p className="font-mono text-[10px] text-slate-600 uppercase tracking-[0.3em]">
-          Time Traveller Protocol v2.4.0 // Secured Archive Access
+          Time Traveller Protocol // Secured Archive Access
         </p>
       </footer>
     </div>
