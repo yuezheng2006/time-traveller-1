@@ -155,24 +155,30 @@ const AppContent: React.FC = () => {
           const serverHistory = await api.getHistory();
           console.log('[History] Cloud records found:', serverHistory?.length || 0);
           
-          if (serverHistory && serverHistory.length > 0) {
-            const formattedHistory: TravelLogItem[] = serverHistory.map(item => ({
+          if (serverHistory) {
+            const formattedServerHistory: TravelLogItem[] = serverHistory.map(item => ({
               ...item,
               imageData: item.imageUrl || item.imageData || '',
               referenceImage: item.referenceImageUrl || item.referenceImage,
               aspectRatio: item.aspectRatio as AspectRatio
             }));
             
-            // For logged in users, server is the source of truth
-            setHistory(formattedHistory);
-            console.log('[History] State updated with cloud records');
-          } else {
-            console.log('[History] Cloud storage is empty for this user.');
-            // If server returns empty, but we have local records, we KEEP local records
-            // but log it. This might happen if cloud save failed previously.
-            if (localHistory.length > 0) {
-              console.log('[History] Keeping local records since cloud is empty');
-            }
+            // Merge local and server history to prevent data loss
+            // Server data takes precedence for items with same ID
+            const mergedHistory = [...formattedServerHistory];
+            const serverIds = new Set(formattedServerHistory.map(item => item.id));
+            
+            localHistory.forEach(localItem => {
+              if (!serverIds.has(localItem.id)) {
+                mergedHistory.push(localItem);
+              }
+            });
+
+            // Sort by timestamp descending
+            mergedHistory.sort((a, b) => b.timestamp - a.timestamp);
+            
+            setHistory(mergedHistory);
+            console.log('[History] State updated with merged records:', mergedHistory.length);
           }
         } catch (err) {
           console.error('[History] Sync failed:', err);
