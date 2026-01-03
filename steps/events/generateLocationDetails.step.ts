@@ -14,7 +14,7 @@ export const config: EventConfig = {
   type: 'event',
   description: 'Generates location description and maps information',
   subscribes: ['generate-location-details'],
-  emits: ['location-details-generated', 'synthesize-speech'],
+  emits: ['location-details-generated'],
   input: inputSchema,
   flows: ['time-traveller-flow']
 };
@@ -38,15 +38,6 @@ export const handler: Handlers['GenerateLocationDetails'] = async (input, { emit
     
     const details: LocationDetails = { description, mapsUri };
     await state.set('teleport-details', teleportId, details);
-
-    await emit({
-      topic: 'synthesize-speech',
-      data: {
-        teleportId,
-        text: description,
-        language
-      }
-    });
 
     await emit({
       topic: 'location-details-generated',

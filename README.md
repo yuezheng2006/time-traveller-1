@@ -115,13 +115,12 @@ npm run dev
 
 ## 🎮 How to Use
 
-### Three Input Modes
+### Two Input Modes
 
 | Mode | How It Works |
 |------|--------------|
 | **📋 Manual** | Enter destination, era, style, upload photo |
 | **💻 Terminal** | Natural language: `"Take me to Paris in 1889"` |
-| **🌍 Orbital** | Click map, search address/pincode, see weather & places |
 
 
 ---

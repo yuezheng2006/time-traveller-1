@@ -18,6 +18,14 @@
         "x": 700,
         "y": 54
       },
+      "steps/api/uploadImage.step.ts": {
+        "x": 0,
+        "y": 0
+      },
+      "steps/api/saveKeys.step.ts": {
+        "x": 0,
+        "y": 0
+      },
       "steps/api/parseTravelCommand.step.ts": {
         "x": -194,
         "y": -7

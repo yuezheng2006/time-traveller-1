@@ -127,7 +127,42 @@ export const handler: Handlers['GenerateImage'] = async (input, { emit, logger, 
     const effectiveImageConfig = imageConfig || teleportData?.imageConfig || { aspectRatio: '16:9' as const, imageSize: '2K' as const };
     
     // Prepare multiple reference images if available
-    const multipleImages = referenceImages || teleportData?.referenceImages;
+    let multipleImages = referenceImages || teleportData?.referenceImages;
+    
+    // If multipleImages contain URLs, fetch them and convert to base64
+    if (multipleImages && multipleImages.length > 0) {
+      const processedImages = [];
+      for (const img of multipleImages) {
+        if (img.data.startsWith('http')) {
+          try {
+            logger.info('Fetching reference image from URL', { teleportId, url: img.data });
+            const response = await fetch(img.data);
+            if (response.ok) {
+              const arrayBuffer = await response.arrayBuffer();
+              const base64 = Buffer.from(arrayBuffer).toString('base64');
+              const contentType = response.headers.get('content-type') || 'image/jpeg';
+              processedImages.push({
+                ...img,
+                data: `data:${contentType};base64,${base64}`
+              });
+              logger.info('Reference image fetched successfully', { teleportId, id: img.id });
+            } else {
+              processedImages.push(img); // Keep as is if fetch fails (it might fail downstream too)
+            }
+          } catch (fetchError) {
+            logger.warn('Failed to fetch reference image from URL', { 
+              teleportId, 
+              url: img.data,
+              error: fetchError instanceof Error ? fetchError.message : 'Unknown error'
+            });
+            processedImages.push(img);
+          }
+        } else {
+          processedImages.push(img);
+        }
+      }
+      multipleImages = processedImages;
+    }
     
     logger.info('Preparing to generate image', {
       traceId,

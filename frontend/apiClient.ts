@@ -119,6 +119,7 @@ export interface TeleportProgress {
   error?: string;
   timestamp: number;
   aspectRatio?: '1:1' | '2:3' | '3:2' | '3:4' | '4:3' | '4:5' | '5:4' | '9:16' | '16:9' | '21:9';
+  imageSize?: '1K' | '2K' | '4K';
 }
 
 export interface HistoryItem {
@@ -135,6 +136,7 @@ export interface HistoryItem {
   usedStreetView?: boolean;
   timestamp: number;
   aspectRatio?: '1:1' | '2:3' | '3:2' | '3:4' | '4:3' | '4:5' | '5:4' | '9:16' | '16:9' | '21:9';
+  imageSize?: '1K' | '2K' | '4K';
 }
 
 
@@ -156,6 +158,36 @@ export async function initiateTeleport(request: TeleportRequest): Promise<Telepo
       throw new Error('Please sign in to start a teleport journey');
     }
     throw new Error(error.error || 'Failed to initiate teleport');
+  }
+
+  return response.json();
+}
+
+export async function uploadImage(base64Image: string): Promise<{ url: string }> {
+  const response = await fetch(`${API_BASE_URL}/teleport/upload`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ image: base64Image }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to upload image');
+  }
+
+  return response.json();
+}
+
+export async function saveKeys(geminiKey?: string, mapsKey?: string): Promise<{ success: boolean }> {
+  const response = await fetch(`${API_BASE_URL}/settings/keys`, {
+    method: 'POST',
+    headers: getAuthHeaders(),
+    body: JSON.stringify({ geminiKey, mapsKey }),
+  });
+
+  if (!response.ok) {
+    const error = await response.json();
+    throw new Error(error.error || 'Failed to save keys');
   }
 
   return response.json();
@@ -215,18 +247,30 @@ export async function getTeleportProgress(teleportId: string): Promise<TeleportP
 export async function getHistory(limit: number = 100): Promise<HistoryItem[]> {
   const token = getAuthToken();
   if (!token) {
+    console.warn('[getHistory] No auth token found, returning empty array');
     return [];
   }
 
+  const headers = getAuthHeaders();
+  console.log('[getHistory] Making request with headers:', { 
+    hasAuth: !!headers.Authorization,
+    url: `${API_BASE_URL}/history?limit=${limit}`
+  });
+
   const response = await fetch(`${API_BASE_URL}/history?limit=${limit}`, {
-    headers: getAuthHeaders(),
+    headers,
   });
 
   if (!response.ok) {
     if (response.status === 401) {
+      console.warn('[getHistory] 401 Unauthorized - token may be invalid or expired');
+      // Clear invalid token
+      localStorage.removeItem('tt_access_token');
+      localStorage.removeItem('tt_user');
       return [];
     }
-    const error = await response.json();
+    const error = await response.json().catch(() => ({ error: `HTTP ${response.status}` }));
+    console.error('[getHistory] Request failed:', error);
     throw new Error(error.error || 'Failed to get history');
   }
 

@@ -33,15 +33,32 @@ export const config: ApiRouteConfig = {
   }
 };
 
-export const handler: Handlers['ParseTravelCommand'] = async (req, { logger, traceId }) => {
+export const handler: Handlers['ParseTravelCommand'] = async (req, { logger, state, traceId }) => {
   try {
     const { message, history, language } = bodySchema.parse(req.body);
     
-    logger.info('Parsing travel command', { traceId, message, language });
+    // Fetch keys from state if available
+    const userId = req.userId;
+    let userGeminiKey: string | undefined;
     
-    const result = await parseTravelCommand(message, history, language);
+    if (userId) {
+      userGeminiKey = await state.get<string>(`user-keys-gemini-${userId}`, 'key') || undefined;
+    }
     
-    logger.info('Command parsed', { traceId, isJump: result.isJump });
+    logger.info('Parsing travel command', { 
+      traceId, 
+      message, 
+      language,
+      usingUserKey: !!userGeminiKey 
+    });
+    
+    const result = await parseTravelCommand(message, history, language, userGeminiKey);
+    
+    logger.info('Command parsed', { 
+      traceId, 
+      isJump: result.isJump,
+      reply: result.reply.substring(0, 50) + (result.reply.length > 50 ? '...' : '')
+    });
     
     return {
       status: 200,

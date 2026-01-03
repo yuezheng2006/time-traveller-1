@@ -9,12 +9,14 @@ import {
   Clock, 
   ExternalLink,
   Search,
-  Database
+  Database,
+  Download
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { getStyleLabel } from '../i18n/styleUtils';
 import { Header } from './Header';
 import { Starfield } from './Starfield';
+import { ImagePreview } from './ImagePreview';
 
 interface HistoryPageProps {
   history: TravelLogItem[];
@@ -25,6 +27,7 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({ history, onSelect }) =
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
+  const [previewImage, setPreviewImage] = useState<{ src: string; item: TravelLogItem } | null>(null);
 
   const handleBack = () => {
     navigate('/');
@@ -113,7 +116,14 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({ history, onSelect }) =
                   key={item.id}
                   className="group bg-cyber-900/40 border border-cyber-800 rounded-2xl overflow-hidden hover:border-cyber-500/50 transition-all duration-500 hover:shadow-[0_0_40px_rgba(14,165,233,0.1)] flex flex-col"
                 >
-                  <div className={`relative ${aspectRatioClass} overflow-hidden flex items-center justify-center bg-black max-h-[300px]`}>
+                  <div 
+                    className={`relative ${aspectRatioClass} overflow-hidden flex items-center justify-center bg-black max-h-[300px] cursor-pointer`}
+                    onClick={() => {
+                      if (item.imageData) {
+                        setPreviewImage({ src: getImageSrc(item.imageData), item });
+                      }
+                    }}
+                  >
                     {item.imageData ? (
                       <>
                         {/* Blurred background for different aspect ratios */}
@@ -171,13 +181,17 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({ history, onSelect }) =
                             rel="noreferrer"
                             className="p-2 bg-cyber-800/50 text-slate-400 hover:text-cyber-400 rounded-lg transition-colors"
                             title="View on Maps"
+                            onClick={(e) => e.stopPropagation()}
                           >
                             <MapPin className="w-4 h-4" />
                           </a>
                         )}
                       </div>
                       <button 
-                        onClick={() => handleSelectItem(item)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleSelectItem(item);
+                        }}
                         className="flex items-center gap-2 px-4 py-2 bg-cyber-500/10 hover:bg-cyber-500 text-cyber-500 hover:text-black font-mono text-xs font-bold rounded-lg transition-all border border-cyber-500/30 hover:border-cyber-500"
                       >
                         <ExternalLink className="w-3.5 h-3.5" />
@@ -197,6 +211,42 @@ export const HistoryPage: React.FC<HistoryPageProps> = ({ history, onSelect }) =
           Time Traveller Protocol // Secured Archive Access
         </p>
       </footer>
+
+      {/* Image Preview Modal */}
+      {previewImage && (
+        <ImagePreview
+          src={previewImage.src}
+          alt={previewImage.item.destination}
+          onClose={() => setPreviewImage(null)}
+          onDownload={async () => {
+            if (!previewImage.item.imageData) return;
+            try {
+              const imageUrl = getImageSrc(previewImage.item.imageData);
+              if (imageUrl.startsWith('http')) {
+                const response = await fetch(imageUrl);
+                const blob = await response.blob();
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `time-traveller-${previewImage.item.destination.replace(/[^a-z0-9]/gi, '-').toLowerCase()}-${previewImage.item.era.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.jpg`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                window.URL.revokeObjectURL(url);
+              } else {
+                const link = document.createElement('a');
+                link.href = imageUrl;
+                link.download = `time-traveller-${previewImage.item.destination.replace(/[^a-z0-9]/gi, '-').toLowerCase()}-${previewImage.item.era.replace(/[^a-z0-9]/gi, '-').toLowerCase()}.jpg`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+              }
+            } catch (error) {
+              console.error('Download failed:', error);
+            }
+          }}
+        />
+      )}
     </div>
   );
 };

@@ -98,6 +98,13 @@ export const handler: Handlers['InitiateTeleport'] = async (req, { emit, logger,
 
     const { destination, era, style, referenceImage, referenceImages, coordinates, imageConfig, userGeminiKey, userMapsKey, language } = bodySchema.parse(req.body);
     
+    // Fetch keys from state if not provided in request
+    const storedGeminiKey = await state.get<string>(`user-keys-gemini-${userId}`, 'key');
+    const storedMapsKey = await state.get<string>(`user-keys-maps-${userId}`, 'key');
+    
+    const finalGeminiKey = userGeminiKey || storedGeminiKey || undefined;
+    const finalMapsKey = userMapsKey || storedMapsKey || process.env.GOOGLE_API_KEY || '';
+
     const teleportId = crypto.randomUUID();
     
     logger.info('Initiating teleport sequence', { 
@@ -110,20 +117,26 @@ export const handler: Handlers['InitiateTeleport'] = async (req, { emit, logger,
       hasReferenceImage: !!referenceImage,
       hasMultipleImages: referenceImages && referenceImages.length > 0,
       imageCount: referenceImages?.length || (referenceImage ? 1 : 0),
-      imageConfig: imageConfig || { aspectRatio: '16:9', imageSize: '2K' }
+      imageConfig: imageConfig || { aspectRatio: '16:9', imageSize: '2K' },
+      usingStoredGeminiKey: !!storedGeminiKey && !userGeminiKey,
+      usingStoredMapsKey: !!storedMapsKey && !userMapsKey
     });
     
     let referenceImageUrl: string | undefined;
-    if (referenceImage && isSupabaseConfigured()) {
-      try {
-        logger.info('Uploading reference image to Supabase', { teleportId });
-        referenceImageUrl = await uploadReferenceImage(teleportId, referenceImage);
-        logger.info('Reference image uploaded successfully', { teleportId, referenceImageUrl });
-      } catch (uploadError) {
-        logger.warn('Failed to upload reference image, continuing without it', { 
-          teleportId, 
-          error: uploadError instanceof Error ? uploadError.message : 'Unknown error'
-        });
+    if (referenceImage) {
+      if (referenceImage.startsWith('http')) {
+        referenceImageUrl = referenceImage;
+      } else if (isSupabaseConfigured()) {
+        try {
+          logger.info('Uploading reference image to Supabase', { teleportId });
+          referenceImageUrl = await uploadReferenceImage(teleportId, referenceImage);
+          logger.info('Reference image uploaded successfully', { teleportId, referenceImageUrl });
+        } catch (uploadError) {
+          logger.warn('Failed to upload reference image, continuing without it', { 
+            teleportId, 
+            error: uploadError instanceof Error ? uploadError.message : 'Unknown error'
+          });
+        }
       }
     }
     
@@ -147,8 +160,8 @@ export const handler: Handlers['InitiateTeleport'] = async (req, { emit, logger,
       coordinates,
       imageConfig: imageConfig || { aspectRatio: '16:9', imageSize: '2K' },
       timestamp: Date.now(),
-      mapsApiKey: userMapsKey || process.env.GOOGLE_API_KEY || '',
-      geminiApiKey: userGeminiKey,
+      mapsApiKey: finalMapsKey,
+      geminiApiKey: finalGeminiKey,
       userId,
       language
     };
@@ -166,8 +179,8 @@ export const handler: Handlers['InitiateTeleport'] = async (req, { emit, logger,
         coordinates,
         referenceImages,
         imageConfig: imageConfig || { aspectRatio: '16:9', imageSize: '2K' },
-        userGeminiKey,
-        userMapsKey
+        userGeminiKey: finalGeminiKey,
+        userMapsKey: finalMapsKey
       }
     });
 

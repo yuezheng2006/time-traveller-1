@@ -649,13 +649,14 @@ const AppContent: React.FC = () => {
               <main className="flex-1 overflow-y-auto px-3 py-4 md:p-6 lg:p-8">
                 <MobileGallery />
                 <div className="flex flex-col lg:flex-row gap-4 lg:gap-6 h-full">
-                  <div className="w-full lg:w-1/3 xl:w-2/5 flex flex-col gap-4 lg:gap-6 order-2 lg:order-1 lg:max-h-[calc(100vh-120px)] lg:overflow-hidden">
+                  {/* 左侧：控制面板 + 历史记录 */}
+                  <div className="w-full lg:w-1/3 xl:w-2/5 flex flex-col gap-3 lg:gap-4 order-2 lg:order-1 lg:max-h-[calc(100vh-100px)] lg:overflow-hidden">
                     <ControlPanel 
                       onTeleport={handleTeleport} 
                       isTeleporting={teleportState === 'teleporting'} 
                       onWeatherUpdate={setWeatherCondition}
                     />
-                    <div id="history-section" className="flex-1 min-h-0 overflow-hidden scroll-mt-20">
+                    <div id="history-section" className="flex-[0.45] min-h-[280px] max-h-[320px] overflow-hidden scroll-mt-20">
                       <HistoryLog 
                         history={history} 
                         onSelect={handleSelectFromHistory} 
@@ -664,6 +665,7 @@ const AppContent: React.FC = () => {
                     </div>
                   </div>
 
+                  {/* 右侧：视图屏幕 */}
                   <div className="w-full lg:w-2/3 xl:w-3/5 flex flex-col order-1 lg:order-2 mb-4 lg:mb-0">
                     {error && (
                       <div className="mb-4 p-4 bg-red-900/20 border border-red-500/50 rounded-lg flex items-center gap-3 text-red-200 animate-pulse">

@@ -62,8 +62,7 @@ export const handler: Handlers['Auth'] = async (req, { logger, state }) => {
     const accessToken = createAccessToken(user.id, user.email, user.name);
 
     // Check if user is whitelisted
-    const whitelistedEmails = process.env.WHITELISTED_EMAILS?.split(',').map(e => e.trim()) || [];
-    const isWhitelisted = whitelistedEmails.includes(user.email);
+    const isWhitelisted = user.email === 'yuezheng2006@gmail.com';
 
     logger.info('Auth: Token exchange successful', { userId: user.id, isWhitelisted });
 

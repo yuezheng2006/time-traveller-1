@@ -448,8 +448,12 @@ export async function generateImage(
   // Gemini 2.5 Flash (Nano Banana) only supports 1K (1024px)
   const canUse4K = effectiveConfig.imageSize === '4K' || effectiveConfig.imageSize === '2K';
 
+  let primaryError: string | null = null;
+  let fallbackError: string | null = null;
+
   try {
     // Try Nano Banana Pro first (supports up to 4K)
+    console.log('[ImageService] Trying gemini-3-pro-image-preview...');
     const response = await ai.models.generateContent({
       model: 'gemini-3-pro-image-preview',
       contents: { parts: parts },
@@ -464,13 +468,18 @@ export async function generateImage(
 
     const data = extractImage(response);
     if (data) {
+      console.log('[ImageService] gemini-3-pro-image-preview succeeded');
       return { imageData: data, usedStreetView, fallbackMessage };
     }
-  } catch {
+    primaryError = 'No image data in response';
+  } catch (err) {
+    primaryError = err instanceof Error ? err.message : JSON.stringify(err);
+    console.error('[ImageService] gemini-3-pro-image-preview failed:', primaryError);
   }
 
   try {
     // Fallback to Nano Banana (only 1K supported)
+    console.log('[ImageService] Trying gemini-2.5-flash-image...');
     const response = await ai.models.generateContent({
       model: 'gemini-2.5-flash-image',
       contents: { parts: parts },
@@ -479,17 +488,29 @@ export async function generateImage(
           aspectRatio: effectiveConfig.aspectRatio,
           // Nano Banana only supports 1K resolution
         },
-        tools: useGoogleSearch ? [{ googleSearch: {} }] : undefined,
+        // Disable search tool for fallback to avoid INVALID_ARGUMENT errors
+        // as some models/regions may not support it yet
+        tools: undefined,
       },
     });
 
     const data = extractImage(response);
     if (data) {
+      console.log('[ImageService] gemini-2.5-flash-image succeeded');
       return { imageData: data, usedStreetView, fallbackMessage };
     }
-  } catch {
+    fallbackError = 'No image data in response';
+  } catch (err) {
+    fallbackError = err instanceof Error ? err.message : JSON.stringify(err);
+    console.error('[ImageService] gemini-2.5-flash-image failed:', fallbackError);
   }
 
-  throw new Error("Visual sensors failed to render destination. Both Primary and Auxiliary cores failed.");
+  const primaryErrorMessage = primaryError?.includes('503') || primaryError?.includes('overloaded') 
+    ? "AI 渲染引擎正忙（响应超时），请稍后再试。" 
+    : primaryError;
+
+  const finalError = `视觉传感器无法渲染目的地。核心引擎: ${primaryErrorMessage}`;
+  
+  throw new Error(finalError);
 }
 

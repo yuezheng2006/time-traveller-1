@@ -3,6 +3,7 @@ import { TeleportState, TravelLogItem, getImageSrc } from '../types';
 import { Volume2, Loader2, VolumeX, Map, ExternalLink, Scan, Sparkles, Camera, AlertTriangle, Download } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { getStyleLabel } from '../i18n/styleUtils';
+import { ImagePreview } from './ImagePreview';
 
 interface ViewScreenProps {
   state: TeleportState;
@@ -25,6 +26,7 @@ export const ViewScreen: React.FC<ViewScreenProps> = ({ state, location, onPlayA
   const startTimeRef = useRef<number>(0);
   const isCompletedRef = useRef(false);
   const lastRealProgressRef = useRef<number>(0);
+  const [showImagePreview, setShowImagePreview] = useState(false);
 
   // Update animatedProgress to follow actual progress from backend
   useEffect(() => {
@@ -314,7 +316,9 @@ export const ViewScreen: React.FC<ViewScreenProps> = ({ state, location, onPlayA
           <img 
             src={getImageSrc(location.imageData)} 
             alt={`${location.destination} in ${location.era}`}
-            className="relative z-10 max-w-full max-h-full object-contain transition-transform duration-1000 group-hover:scale-[1.02]"
+            className="relative z-10 max-w-full max-h-full object-contain transition-transform duration-1000 group-hover:scale-[1.02] cursor-pointer"
+            onClick={() => setShowImagePreview(true)}
+            title={t('view_screen.click_to_preview') || 'Click to preview'}
           />
 
           <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-start bg-gradient-to-b from-black/80 to-transparent">
@@ -343,8 +347,8 @@ export const ViewScreen: React.FC<ViewScreenProps> = ({ state, location, onPlayA
                     {t('view_screen.street_view')}
                   </div>
                 )}
-                <div className="bg-black/50 backdrop-blur border border-cyber-500/30 px-2 py-1 rounded text-[10px] font-mono text-cyber-300">
-                  {t('view_screen.img_res_8k')}
+                <div className="bg-black/50 backdrop-blur border border-cyber-500/30 px-2 py-1 rounded text-[10px] font-mono text-cyber-300 uppercase">
+                  {location.imageSize || '2K'} {t('view_screen.render')}
                 </div>
              </div>
           </div>
@@ -390,6 +394,8 @@ export const ViewScreen: React.FC<ViewScreenProps> = ({ state, location, onPlayA
                <Scan className="w-5 h-5 text-cyber-500" />
                {t('view_screen.environmental_analysis')}
              </h3>
+             {/* TTS button temporarily disabled per user request */}
+             {/* 
             <button 
                onClick={isAudioPlaying ? onStopAudio : onPlayAudio}
                className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all ${
@@ -404,6 +410,7 @@ export const ViewScreen: React.FC<ViewScreenProps> = ({ state, location, onPlayA
                  <><Volume2 className="w-4 h-4" /> {t('view_screen.play_audio')}</>
                )}
              </button>
+             */}
           </div>
           
           <div className="relative pl-6 border-l-2 border-cyber-500/30">
@@ -434,6 +441,16 @@ export const ViewScreen: React.FC<ViewScreenProps> = ({ state, location, onPlayA
              </div>
           </div>
         </div>
+
+        {/* Image Preview Modal */}
+        {showImagePreview && location?.imageData && (
+          <ImagePreview
+            src={getImageSrc(location.imageData)}
+            alt={`${location.destination} in ${location.era}`}
+            onClose={() => setShowImagePreview(false)}
+            onDownload={handleDownloadImage}
+          />
+        )}
       </div>
     );
   }

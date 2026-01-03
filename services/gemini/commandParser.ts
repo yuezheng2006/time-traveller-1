@@ -4,7 +4,8 @@ import { getAI } from './imageService';
 export async function parseTravelCommand(
   message: string, 
   history: string[],
-  language: string = 'en'
+  language: string = 'en',
+  apiKey?: string
 ): Promise<{ 
   isJump: boolean; 
   reply: string; 
@@ -16,7 +17,7 @@ export async function parseTravelCommand(
     imageSize?: string
   } 
 }> {
-  const ai = getAI();
+  const ai = getAI(apiKey);
   
   const prompt = `
     You are the navigation AI for Time Traveller.

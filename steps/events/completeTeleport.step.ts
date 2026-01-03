@@ -9,8 +9,8 @@ const inputSchema = z.object({
 export const config: EventConfig = {
   name: 'CompleteTeleport',
   type: 'event',
-  description: 'Completes the teleportation sequence when image, details, and audio are ready',
-  subscribes: ['image-generated', 'location-details-generated', 'audio-synthesized'],
+  description: 'Completes the teleportation sequence when image and details are ready',
+  subscribes: ['image-generated', 'location-details-generated'],
   emits: [],
   input: inputSchema,
   flows: ['time-traveller-flow']
@@ -54,16 +54,14 @@ export const handler: Handlers['CompleteTeleport'] = async (input, { logger, str
     
     const imageState = await state.get<ImageState>('teleport-images', teleportId);
     const detailsState = await state.get<LocationDetails>('teleport-details', teleportId);
-    const audioState = await state.get<AudioState>('teleport-audio', teleportId);
     const teleportData = await state.get<TeleportData>('teleports', teleportId);
     
-    if (!imageState || !detailsState || !teleportData || !audioState) {
+    if (!imageState || !detailsState || !teleportData) {
       logger.info('Waiting for remaining data', { 
         traceId,
         teleportId,
         hasImage: !!imageState,
         hasDetails: !!detailsState,
-        hasAudio: !!audioState,
         hasData: !!teleportData
       });
       return;
@@ -114,7 +112,8 @@ export const handler: Handlers['CompleteTeleport'] = async (input, { logger, str
         });
         logger.info('History stored in Supabase for user', { teleportId, userId });
 
-        if (audioState.audioUrl) {
+        const audioState = await state.get<AudioState>('teleport-audio', teleportId);
+        if (audioState?.audioUrl) {
           try {
             await saveAudio(teleportId, audioState.audioUrl);
             logger.info('Audio record stored in Supabase', { teleportId });
