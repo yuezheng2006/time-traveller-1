@@ -86,7 +86,7 @@ const AppContent: React.FC = () => {
   const remainingFreeGenerations = Math.max(0, MAX_FREE_GENERATIONS - generationsUsed);
   const canGenerate = hasUserKeys || isWhitelisted || remainingFreeGenerations > 0;
 
-  const handleSaveApiKeys = (geminiKey: string, mapsKey: string) => {
+  const handleSaveApiKeys = async (geminiKey: string, mapsKey: string): Promise<void> => {
     const oldMapsKey = localStorage.getItem(STORAGE_KEY_USER_MAPS);
     
     setUserGeminiKey(geminiKey);
@@ -100,6 +100,13 @@ const AppContent: React.FC = () => {
         window.location.reload();
       }
     }
+  };
+
+  const handleDeleteKeys = async (): Promise<void> => {
+    setUserGeminiKey('');
+    setUserMapsKey('');
+    localStorage.removeItem(STORAGE_KEY_USER_GEMINI);
+    localStorage.removeItem(STORAGE_KEY_USER_MAPS);
   };
 
   const incrementGenerationCount = () => {
@@ -722,6 +729,7 @@ const AppContent: React.FC = () => {
               isOpen={showApiKeyModal} 
               onClose={() => setShowApiKeyModal(false)}
               onSaveKeys={handleSaveApiKeys}
+              onDeleteKeys={handleDeleteKeys}
               generationsUsed={generationsUsed}
               maxFreeGenerations={MAX_FREE_GENERATIONS}
               isWhitelisted={isWhitelisted}
