@@ -473,7 +473,22 @@ export async function generateImage(
     }
     primaryError = 'No image data in response';
   } catch (err) {
-    primaryError = err instanceof Error ? err.message : JSON.stringify(err);
+    // Extract error message, handling both Error objects and JSON responses
+    if (err instanceof Error) {
+      primaryError = err.message;
+    } else if (typeof err === 'object' && err !== null) {
+      // Try to extract error message from Google API error response
+      const errorObj = err as any;
+      if (errorObj.error?.message) {
+        primaryError = errorObj.error.message;
+      } else if (errorObj.message) {
+        primaryError = errorObj.message;
+      } else {
+        primaryError = JSON.stringify(err);
+      }
+    } else {
+      primaryError = String(err);
+    }
     console.error('[ImageService] gemini-3-pro-image-preview failed:', primaryError);
   }
 
@@ -501,15 +516,49 @@ export async function generateImage(
     }
     fallbackError = 'No image data in response';
   } catch (err) {
-    fallbackError = err instanceof Error ? err.message : JSON.stringify(err);
+    // Extract error message, handling both Error objects and JSON responses
+    if (err instanceof Error) {
+      fallbackError = err.message;
+    } else if (typeof err === 'object' && err !== null) {
+      // Try to extract error message from Google API error response
+      const errorObj = err as any;
+      if (errorObj.error?.message) {
+        fallbackError = errorObj.error.message;
+      } else if (errorObj.message) {
+        fallbackError = errorObj.message;
+      } else {
+        fallbackError = JSON.stringify(err);
+      }
+    } else {
+      fallbackError = String(err);
+    }
     console.error('[ImageService] gemini-2.5-flash-image failed:', fallbackError);
   }
 
-  const primaryErrorMessage = primaryError?.includes('503') || primaryError?.includes('overloaded') 
-    ? "AI 渲染引擎正忙（响应超时），请稍后再试。" 
-    : primaryError;
+  // Check for API key errors in both primary and fallback errors
+  const combinedError = primaryError || fallbackError || '';
+  const isApiKeyExpired = combinedError.includes('API key expired') || 
+                          combinedError.includes('API_KEY_INVALID') ||
+                          (combinedError.includes('INVALID_ARGUMENT') && combinedError.includes('API key')) ||
+                          combinedError.includes('API key expired');
+  
+  const isApiKeyInvalid = combinedError.includes('API key') && 
+                          (combinedError.includes('invalid') || combinedError.includes('Invalid'));
 
-  const finalError = `视觉传感器无法渲染目的地。核心引擎: ${primaryErrorMessage}`;
+  let primaryErrorMessage: string;
+  if (isApiKeyExpired) {
+    primaryErrorMessage = "API_KEY_EXPIRED";
+  } else if (isApiKeyInvalid) {
+    primaryErrorMessage = "API_KEY_INVALID";
+  } else if (primaryError?.includes('503') || primaryError?.includes('overloaded')) {
+    primaryErrorMessage = "AI 渲染引擎正忙（响应超时），请稍后再试。";
+  } else {
+    primaryErrorMessage = primaryError || 'Unknown error';
+  }
+
+  const finalError = isApiKeyExpired || isApiKeyInvalid
+    ? primaryErrorMessage
+    : `视觉传感器无法渲染目的地。核心引擎: ${primaryErrorMessage}`;
   
   throw new Error(finalError);
 }

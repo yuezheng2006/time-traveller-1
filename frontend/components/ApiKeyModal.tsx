@@ -27,6 +27,16 @@ export const ApiKeyModal: React.FC<ApiKeyModalProps> = ({
   const [isSaving, setIsSaving] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
+  // Load saved key when modal opens
+  React.useEffect(() => {
+    if (isOpen) {
+      const savedKey = localStorage.getItem('time-traveller-user-gemini-key');
+      if (savedKey) {
+        setGeminiKey(savedKey);
+      }
+    }
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   const handleSave = async () => {

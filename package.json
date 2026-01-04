@@ -8,7 +8,8 @@
     "preview": "vite preview --config frontend/vite.config.ts frontend",
     "backend": "motia dev --port 3000",
     "backend:build": "motia build",
-    "backend:start": "motia start --port 3000"
+    "backend:start": "motia start --port 3000",
+    "update-secrets": "./scripts/update-secrets.sh"
   },
   "dependencies": {
     "@google/genai": "1.30.0",

@@ -397,6 +397,8 @@
     "teleport_malfunction": "时空传送故障. 坐标无效。",
     "teleport_timeout": "时空传送超时. 请重试。",
     "audio_not_ready": "语音尚未就绪. 请稍候并重试。",
-    "audio_subsystem_failure": "语音合成子系统故障或尚未就绪。"
+    "audio_subsystem_failure": "语音合成子系统故障或尚未就绪。",
+    "api_key_expired": "API 密钥已过期。请更新您的 Gemini API 密钥以继续使用。",
+    "api_key_invalid": "API 密钥无效。请检查您的 Gemini API 密钥是否正确。"
   }
 }

@@ -348,7 +348,19 @@ const AppContent: React.FC = () => {
             unsubscribe();
           } else if (progress.status === 'error') {
             markComplete();
-            setError(progress.error || "Teleportation malfunction.");
+            const errorMsg = progress.error || "Teleportation malfunction.";
+            
+            // Check for API key errors
+            if (errorMsg.includes('API_KEY_EXPIRED') || errorMsg.includes('API key expired')) {
+              setError(t('errors.api_key_expired'));
+              setShowApiKeyModal(true);
+            } else if (errorMsg.includes('API_KEY_INVALID') || (errorMsg.includes('API key') && errorMsg.includes('invalid'))) {
+              setError(t('errors.api_key_invalid'));
+              setShowApiKeyModal(true);
+            } else {
+              setError(errorMsg);
+            }
+            
             setTeleportState('error');
             unsubscribe();
           }
@@ -386,6 +398,21 @@ const AppContent: React.FC = () => {
       
       if (message.includes('sign in')) {
         setError(message);
+        setTeleportState('error');
+        return;
+      }
+      
+      // Check for API key errors
+      if (message.includes('API_KEY_EXPIRED') || message.includes('API key expired')) {
+        setError(t('errors.api_key_expired'));
+        setShowApiKeyModal(true);
+        setTeleportState('error');
+        return;
+      }
+      
+      if (message.includes('API_KEY_INVALID') || (message.includes('API key') && message.includes('invalid'))) {
+        setError(t('errors.api_key_invalid'));
+        setShowApiKeyModal(true);
         setTeleportState('error');
         return;
       }
@@ -470,7 +497,19 @@ const AppContent: React.FC = () => {
           return;
         } else if (progress.status === 'error') {
           isTeleportingRef.current = false;
-          setError(progress.error || t('errors.teleport_malfunction'));
+          const errorMsg = progress.error || t('errors.teleport_malfunction');
+          
+          // Check for API key errors
+          if (errorMsg.includes('API_KEY_EXPIRED') || errorMsg.includes('API key expired')) {
+            setError(t('errors.api_key_expired'));
+            setShowApiKeyModal(true);
+          } else if (errorMsg.includes('API_KEY_INVALID') || (errorMsg.includes('API key') && errorMsg.includes('invalid'))) {
+            setError(t('errors.api_key_invalid'));
+            setShowApiKeyModal(true);
+          } else {
+            setError(errorMsg);
+          }
+          
           setTeleportState('error');
           return;
         }
@@ -486,7 +525,18 @@ const AppContent: React.FC = () => {
       } catch (err: unknown) {
         isTeleportingRef.current = false;
         const message = err instanceof Error ? err.message : 'Unknown error';
-        setError(message);
+        
+        // Check for API key errors
+        if (message.includes('API_KEY_EXPIRED') || message.includes('API key expired')) {
+          setError(t('errors.api_key_expired'));
+          setShowApiKeyModal(true);
+        } else if (message.includes('API_KEY_INVALID') || (message.includes('API key') && message.includes('invalid'))) {
+          setError(t('errors.api_key_invalid'));
+          setShowApiKeyModal(true);
+        } else {
+          setError(message);
+        }
+        
         setTeleportState('error');
       }
     };

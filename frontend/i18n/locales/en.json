@@ -390,6 +390,8 @@
     "teleport_malfunction": "Teleportation malfunction. Coordinates invalid.",
     "teleport_timeout": "Teleportation timeout. Please try again.",
     "audio_not_ready": "Audio not yet ready. Please wait a moment and try again.",
-    "audio_subsystem_failure": "Audio synthesis subsystem failure or not yet ready."
+    "audio_subsystem_failure": "Audio synthesis subsystem failure or not yet ready.",
+    "api_key_expired": "API key expired. Please renew your Gemini API key to continue.",
+    "api_key_invalid": "API key invalid. Please check your Gemini API key is correct."
   }
 }
