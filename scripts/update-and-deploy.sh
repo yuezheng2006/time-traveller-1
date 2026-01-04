@@ -38,7 +38,10 @@ echo "✅ GitHub Secrets 已更新"
 echo ""
 
 echo -e "${GREEN}📝 步骤 3: 部署到 Motia Cloud${NC}"
-MOTIA_API_KEY="motia-Mzg3M2ExY2UtNDUzZi00Yjg3LTkwNjUt"
+# 请确保已在本地设置了 MOTIA_API_KEY 环境变量，或通过命令行输入
+if [ -z "$MOTIA_API_KEY" ]; then
+    read -p "请输入 MOTIA_API_KEY: " MOTIA_API_KEY
+fi
 VERSION_NAME="v1.0.$(date +%Y%m%d%H%M%S)"
 
 npx motia cloud deploy \
